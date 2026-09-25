@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Builder | GenomeTech Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white p-4 shadow-lg">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-wider">GenomeTech Studio</h1>
+            <a href="index.html" class="hover:text-blue-200">Back to Home</a>
+        </div>
+    </nav>
+
+    <!-- Builder Section -->
+    <div class="max-w-6xl mx-auto mt-10 p-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- Left Column: Module Selection -->
+        <div class="md:col-span-2 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Configure Your Pipeline</h2>
+            <p class="text-gray-500 mb-8">Select the analytical modules required for your research. Pricing updates dynamically.</p>
+
+            <form id="builderForm">
+                <!-- Standard Tool -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold border-b pb-2 mb-4">Express Tools</h3>
+                    <label class="flex items-center p-4 border rounded-lg hover:bg-blue-50 cursor-pointer transition">
+                        <input type="checkbox" class="module-checkbox w-5 h-5 text-blue-600" value="40" data-type="express">
+                        <div class="ml-4 flex-grow">
+                            <span class="block font-bold">OmicsExpress Micro-Tool</span>
+                            <span class="text-sm text-gray-500">Standardized quick-turnaround data visualization</span>
+                        </div>
+                        <span class="font-bold text-blue-700">$40</span>
+                    </label>
+                </div>
+
+                <!-- Custom Modules -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold border-b pb-2 mb-4">Custom Bioinformatics Modules</h3>
+                    
+                    <label class="flex items-center p-4 border rounded-lg hover:bg-blue-50 cursor-pointer transition mb-3">
+                        <input type="checkbox" class="module-checkbox w-5 h-5 text-blue-600" value="500" data-type="custom">
+                        <div class="ml-4 flex-grow">
+                            <span class="block font-bold">RNA-Seq Differential Expression</span>
+                            <span class="text-sm text-gray-500">Full pipeline from raw FASTQ to annotated DEGs</span>
+                        </div>
+                        <span class="font-bold text-blue-700">$500</span>
+                    </label>
+
+                    <label class="flex items-center p-4 border rounded-lg hover:bg-blue-50 cursor-pointer transition mb-3">
+                        <input type="checkbox" class="module-checkbox w-5 h-5 text-blue-600" value="800" data-type="custom">
+                        <div class="ml-4 flex-grow">
+                            <span class="block font-bold">Single-Cell Transcriptomics (scRNA-seq)</span>
+                            <span class="text-sm text-gray-500">Clustering, trajectory inference, and marker ID</span>
+                        </div>
+                        <span class="font-bold text-blue-700">$800</span>
+                    </label>
+
+                    <label class="flex items-center p-4 border rounded-lg hover:bg-blue-50 cursor-pointer transition">
+                        <input type="checkbox" class="module-checkbox w-5 h-5 text-blue-600" value="200" data-type="custom">
+                        <div class="ml-4 flex-grow">
+                            <span class="block font-bold">Pathway & Network Enrichment</span>
+                            <span class="text-sm text-gray-500">GO, KEGG, and STRING interaction networks</span>
+                        </div>
+                        <span class="font-bold text-blue-700">$200</span>
+                    </label>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Column: Price Calculator -->
+        <div class="bg-gray-800 text-white p-8 rounded-xl shadow-lg h-fit sticky top-10">
+            <h3 class="text-xl font-bold mb-6 border-b border-gray-600 pb-2">Project Estimate</h3>
+            
+            <div class="flex justify-between mb-4">
+                <span class="text-gray-300">Total Project Value:</span>
+                <span class="font-bold text-xl" id="totalPrice">$0</span>
+            </div>
+
+            <div class="flex justify-between mb-6 text-sm text-yellow-400" id="advanceNotice" style="display: none;">
+                <span>Required 30% Advance:</span>
+                <span class="font-bold" id="advancePrice">$0</span>
+            </div>
+
+            <p class="text-xs text-gray-400 mb-8" id="statusText">Select modules to generate a quote.</p>
+
+            <!-- Dynamic Action Button -->
+            <a href="#" id="checkoutBtn" class="block w-full bg-blue-600 hover:bg-blue-500 text-center py-3 rounded-lg font-bold transition opacity-50 cursor-not-allowed">
+                Awaiting Selection
+            </a>
+        </div>
+    </div>
+
+    <!-- The Javascript that makes it smart -->
+    <script>
+        const checkboxes = document.querySelectorAll('.module-checkbox');
+        const totalPriceEl = document.getElementById('totalPrice');
+        const advanceNoticeEl = document.getElementById('advanceNotice');
+        const advancePriceEl = document.getElementById('advancePrice');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        const statusText = document.getElementById('statusText');
+
+        // Your specific links!
+        const razorpayLink = "https://rzp.io/rzp/kVKTfgjx";
+        const googleFormLink = "https://forms.gle/9gqcYrc3NjtAn7z59";
+
+        checkboxes.forEach(box => {
+            box.addEventListener('change', calculate);
+        });
+
+        function calculate() {
+            let total = 0;
+            let hasCustom = false;
+            let hasExpress = false;
+
+            checkboxes.forEach(box => {
+                if (box.checked) {
+                    total += parseInt(box.value);
+                    if (box.dataset.type === 'custom') hasCustom = true;
+                    if (box.dataset.type === 'express') hasExpress = true;
+                }
+            });
+
+            totalPriceEl.innerText = "$" + total;
+
+            if (total === 0) {
+                checkoutBtn.innerText = "Awaiting Selection";
+                checkoutBtn.href = "#";
+                checkoutBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                advanceNoticeEl.style.display = 'none';
+                statusText.innerText = "Select modules to generate a quote.";
+            } 
+            else if (hasCustom) {
+                // Enterprise Custom Project Logic
+                let advance = total * 0.30;
+                advancePriceEl.innerText = "$" + advance.toFixed(2);
+                advanceNoticeEl.style.display = 'flex';
+                
+                checkoutBtn.innerText = "Continue to Intake Form";
+                checkoutBtn.href = googleFormLink;
+                checkoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                statusText.innerText = "Custom projects require a 30% advance after requirements review. Click to fill out your project details.";
+            } 
+            else if (hasExpress && !hasCustom) {
+                // Express Micro-Tool Logic
+                advanceNoticeEl.style.display = 'none';
+                
+                checkoutBtn.innerText = "Pay $40 & Start Setup";
+                checkoutBtn.href = razorpayLink;
+                checkoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                statusText.innerText = "Express tools require full payment upfront. You will receive your portal login in 6-9 hours.";
+            }
+        }
+    </script>
+</body>
+</html>
