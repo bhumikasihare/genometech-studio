@@ -12,7 +12,12 @@
     <nav class="bg-blue-900 text-white p-4 shadow-lg">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-bold tracking-wider">GenomeTech Studio</h1>
-            <a href="index.html" class="hover:text-blue-200">Back to Home</a>
+            <div class="flex items-center gap-6">
+                <a href="https://microtool-omics.streamlit.app/" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold bg-purple-600 hover:bg-purple-500 px-3.5 py-1.5 rounded-lg transition">
+                    Launch OmicsExpress Suite ↗
+                </a>
+                <a href="index.html" class="hover:text-blue-200">Back to Home</a>
+            </div>
         </div>
     </nav>
 
@@ -27,15 +32,44 @@
             <form id="builderForm">
                 <!-- Standard Tool -->
                 <div class="mb-8">
-                    <h3 class="text-xl font-semibold border-b pb-2 mb-4">Express Tools</h3>
-                    <label class="flex items-center p-4 border rounded-lg hover:bg-blue-50 cursor-pointer transition">
-                        <input type="checkbox" class="module-checkbox w-5 h-5 text-blue-600" value="40" data-type="express">
-                        <div class="ml-4 flex-grow">
-                            <span class="block font-bold">OmicsExpress Micro-Tool</span>
-                            <span class="text-sm text-gray-500">Standardized quick-turnaround data visualization</span>
+                    <div class="flex flex-wrap items-center justify-between border-b pb-2 mb-4 gap-2">
+                        <h3 class="text-xl font-semibold">Express Tools (Instant Automated Execution)</h3>
+                        <span class="text-xs font-bold bg-purple-100 text-purple-800 border border-purple-300 px-2.5 py-1 rounded-full">
+                            🔥 Founding Lab Offer: First 20 Clients
+                        </span>
+                    </div>
+
+                    <div class="p-4 border border-purple-200 bg-purple-50/40 rounded-lg transition">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="module-checkbox w-5 h-5 text-blue-600" value="40" data-type="express">
+                            <div class="ml-4 flex-grow">
+                                <span class="block font-bold text-gray-900">OmicsExpress Automated Micro-Tool Run</span>
+                                <span class="text-sm text-gray-600">Upload dataset, inspect free interactive preview &amp; QC, and unlock full exports</span>
+                            </div>
+                            <div class="text-right ml-2">
+                                <span class="text-xs text-gray-400 line-through font-semibold mr-1">$100</span>
+                                <span class="font-bold text-blue-700 text-lg">$40</span>
+                            </div>
+                        </label>
+
+                        <!-- Direct Micro-Tool Picker -->
+                        <div class="mt-4 pt-3 border-t border-purple-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <select id="expressToolSelect" class="text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-700 font-medium flex-grow focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="https://microtool-omics.streamlit.app/">All 8 Micro-Tools (OmicsExpress Launchpad)</option>
+                                <option value="https://microtool-omics.streamlit.app/?tool=1">Tool #1: Universal Gene ID Translator ($40)</option>
+                                <option value="https://microtool-omics.streamlit.app/?tool=2">Tool #2: Automated Batch Primer Designer ($40)</option>
+                                <option value="https://microtool-omics.streamlit.app/?tool=3">Tool #3: VCF to Clinical CSV Converter ($40)</option>
+                                <option value="https://microtool-omics.streamlit.app/?tool=4">Tool #4: Variant Susceptibility &amp; ACMG Screener ($40)</option>
+                                <option value="https://microtool-omics.streamlit.app/?tool=5">Tool #5: Bulk NCBI &amp; Ensembl FASTA Fetcher ($40)</option>
+                                <option value="https://microtool-omics.streamlit.app/?tool=6">Tool #6: Clinical &amp; Genomic Dataset Merger ($40)</option>
+                                <option value="https://microtool-omics.streamlit.app/?tool=7">Tool #7: Automated ANOVA &amp; Post-Hoc Suite ($40)</option>
+                                <option value="https://microtool-omics.streamlit.app/?tool=8">Tool #8: Kaplan-Meier Survival Plotter ($40)</option>
+                            </select>
+                            <a id="directLaunchLink" href="https://microtool-omics.streamlit.app/" target="_blank" rel="noopener noreferrer" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-lg text-center whitespace-nowrap transition">
+                                Launch Live Tool &amp; Preview Free ➔
+                            </a>
                         </div>
-                        <span class="font-bold text-blue-700">$40</span>
-                    </label>
+                    </div>
                 </div>
 
                 <!-- Custom Modules -->
@@ -63,7 +97,7 @@
                     <label class="flex items-center p-4 border rounded-lg hover:bg-blue-50 cursor-pointer transition">
                         <input type="checkbox" class="module-checkbox w-5 h-5 text-blue-600" value="200" data-type="custom">
                         <div class="ml-4 flex-grow">
-                            <span class="block font-bold">Pathway & Network Enrichment</span>
+                            <span class="block font-bold">Pathway &amp; Network Enrichment</span>
                             <span class="text-sm text-gray-500">GO, KEGG, and STRING interaction networks</span>
                         </div>
                         <span class="font-bold text-blue-700">$200</span>
@@ -89,8 +123,13 @@
             <p class="text-xs text-gray-400 mb-8" id="statusText">Select modules to generate a quote.</p>
 
             <!-- Dynamic Action Button -->
-            <a href="#" id="checkoutBtn" class="block w-full bg-blue-600 hover:bg-blue-500 text-center py-3 rounded-lg font-bold transition opacity-50 cursor-not-allowed">
+            <a href="#" id="checkoutBtn" target="_blank" rel="noopener noreferrer" class="block w-full bg-blue-600 hover:bg-blue-500 text-center py-3 rounded-lg font-bold transition opacity-50 cursor-not-allowed">
                 Awaiting Selection
+            </a>
+
+            <!-- Secondary Live Preview Link for Express Tools -->
+            <a href="https://microtool-omics.streamlit.app/" id="liveAppSecondaryBtn" target="_blank" rel="noopener noreferrer" style="display: none;" class="block w-full mt-3 border border-purple-400/60 text-purple-300 hover:bg-purple-900/40 text-center py-2.5 rounded-lg text-xs font-semibold transition">
+                Or Preview Your Data in OmicsExpress First ↗
             </a>
         </div>
     </div>
@@ -103,10 +142,19 @@
         const advancePriceEl = document.getElementById('advancePrice');
         const checkoutBtn = document.getElementById('checkoutBtn');
         const statusText = document.getElementById('statusText');
+        const expressToolSelect = document.getElementById('expressToolSelect');
+        const directLaunchLink = document.getElementById('directLaunchLink');
+        const liveAppSecondaryBtn = document.getElementById('liveAppSecondaryBtn');
 
         // Your specific links!
         const razorpayLink = "https://rzp.io/rzp/UVDck3w";
         const googleFormLink = "https://forms.gle/9gqcYrc3NjtAn7z59";
+
+        // Update direct launch link when dropdown changes
+        expressToolSelect.addEventListener('change', function() {
+            directLaunchLink.href = this.value;
+            liveAppSecondaryBtn.href = this.value;
+        });
 
         checkboxes.forEach(box => {
             box.addEventListener('change', calculate);
@@ -130,8 +178,10 @@
             if (total === 0) {
                 checkoutBtn.innerText = "Awaiting Selection";
                 checkoutBtn.href = "#";
+                checkoutBtn.removeAttribute('target');
                 checkoutBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 advanceNoticeEl.style.display = 'none';
+                liveAppSecondaryBtn.style.display = 'none';
                 statusText.innerText = "Select modules to generate a quote.";
             } 
             else if (hasCustom) {
@@ -139,20 +189,24 @@
                 let advance = total * 0.30;
                 advancePriceEl.innerText = "$" + advance.toFixed(2);
                 advanceNoticeEl.style.display = 'flex';
+                liveAppSecondaryBtn.style.display = 'none';
                 
                 checkoutBtn.innerText = "Continue to Intake Form";
                 checkoutBtn.href = googleFormLink;
+                checkoutBtn.setAttribute('target', '_blank');
                 checkoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 statusText.innerText = "Custom projects require a 30% advance after requirements review. Click to fill out your project details.";
             } 
             else if (hasExpress && !hasCustom) {
                 // Express Micro-Tool Logic
                 advanceNoticeEl.style.display = 'none';
+                liveAppSecondaryBtn.style.display = 'block';
                 
-                checkoutBtn.innerText = "Pay $40 & Start Setup";
+                checkoutBtn.innerText = "Pay $40 USD (Founding Lab Rate)";
                 checkoutBtn.href = razorpayLink;
+                checkoutBtn.setAttribute('target', '_blank');
                 checkoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                statusText.innerText = "Express tools require full payment upfront. You will receive your portal login in 6-9 hours.";
+                statusText.innerText = "Founding Lab Offer ($40 USD, reg. $100). Pay upfront for instant unlock, or preview your dataset live in the OmicsExpress portal.";
             }
         }
     </script>
