@@ -6,55 +6,56 @@
     <title>Project Builder | GenomeTech Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans">
+<body class="bg-slate-950 text-slate-100 font-sans">
 
     <!-- Navigation -->
-    <nav class="bg-blue-900 text-white p-4 shadow-lg">
+    <nav class="bg-slate-900 border-b border-slate-800 text-white p-4 shadow-lg">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold tracking-wider">GenomeTech Studio</h1>
+            <h1 class="text-2xl font-bold tracking-wider flex items-center gap-2">🧬 GenomeTech Studio</h1>
             <div class="flex items-center gap-6">
-                <a href="https://microtool-omics.streamlit.app/" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold bg-purple-600 hover:bg-purple-500 px-3.5 py-1.5 rounded-lg transition">
+                <a href="https://microtool-omics.streamlit.app/" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 px-3.5 py-1.5 rounded-lg transition shadow-md">
                     Launch OmicsExpress Suite ↗
                 </a>
-                <a href="index.html" class="hover:text-blue-200">Back to Home</a>
+                <a href="index.html" class="hover:text-cyan-400 text-sm font-medium transition">← Back to Home</a>
             </div>
         </div>
     </nav>
 
     <!-- Builder Section -->
-    <div class="max-w-6xl mx-auto mt-10 p-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="max-w-6xl mx-auto mt-10 p-4 grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
         
         <!-- Left Column: Module Selection -->
-        <div class="md:col-span-2 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-            <h2 class="text-3xl font-bold text-gray-800 mb-2">Configure Your Pipeline</h2>
-            <p class="text-gray-500 mb-8">Select the analytical modules required for your research. Pricing updates dynamically.</p>
+        <div class="md:col-span-2 bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-xl">
+            <h2 class="text-3xl font-bold text-white mb-2">Configure Your Bioinformatics Pipeline</h2>
+            <p class="text-slate-400 mb-8 text-sm">Select individual modules or full bundles required for your research. Pricing updates dynamically.</p>
 
             <form id="builderForm">
-                <!-- Standard Tool -->
-                <div class="mb-8">
-                    <div class="flex flex-wrap items-center justify-between border-b pb-2 mb-4 gap-2">
-                        <h3 class="text-xl font-semibold">Express Tools (Instant Automated Execution)</h3>
-                        <span class="text-xs font-bold bg-purple-100 text-purple-800 border border-purple-300 px-2.5 py-1 rounded-full">
-                            🔥 Founding Lab Offer: First 20 Clients
+                
+                <!-- Express Tools Section -->
+                <div class="mb-10">
+                    <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-2 mb-4 gap-2">
+                        <h3 class="text-xl font-bold text-purple-400">Express Tools (Instant Automated Execution)</h3>
+                        <span class="text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 px-3 py-1 rounded-full flex items-center gap-1">
+                            <span>💎</span> Founding Lab Special ($40)
                         </span>
                     </div>
 
-                    <div class="p-4 border border-purple-200 bg-purple-50/40 rounded-lg transition">
+                    <div class="p-4 border border-purple-500/30 bg-purple-950/30 rounded-xl transition">
                         <label class="flex items-center cursor-pointer">
-                            <input type="checkbox" class="module-checkbox w-5 h-5 text-blue-600" value="40" data-type="express">
+                            <input type="checkbox" class="module-checkbox w-5 h-5 text-purple-600 rounded bg-slate-900 border-slate-700" value="40" data-type="express">
                             <div class="ml-4 flex-grow">
-                                <span class="block font-bold text-gray-900">OmicsExpress Automated Micro-Tool Run</span>
-                                <span class="text-sm text-gray-600">Upload dataset, inspect free interactive preview &amp; QC, and unlock full exports</span>
+                                <span class="block font-bold text-white">OmicsExpress Automated Micro-Tool Run</span>
+                                <span class="text-sm text-slate-400">Upload dataset, inspect free interactive preview &amp; QC, and unlock full exports</span>
                             </div>
                             <div class="text-right ml-2">
-                                <span class="text-xs text-gray-400 line-through font-semibold mr-1">$100</span>
-                                <span class="font-bold text-blue-700 text-lg">$40</span>
+                                <span class="text-xs text-slate-500 line-through font-semibold mr-1">$100</span>
+                                <span class="font-bold text-purple-400 text-lg">$40</span>
                             </div>
                         </label>
 
                         <!-- Direct Micro-Tool Picker -->
-                        <div class="mt-4 pt-3 border-t border-purple-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <select id="expressToolSelect" class="text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-700 font-medium flex-grow focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <div class="mt-4 pt-3 border-t border-purple-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <select id="expressToolSelect" class="text-sm border border-slate-700 rounded-lg px-3 py-2 bg-slate-900 text-slate-200 font-medium flex-grow focus:outline-none focus:ring-2 focus:ring-purple-500">
                                 <option value="https://microtool-omics.streamlit.app/">All 8 Micro-Tools (OmicsExpress Launchpad)</option>
                                 <option value="https://microtool-omics.streamlit.app/?tool=1">Tool #1: Universal Gene ID Translator ($40)</option>
                                 <option value="https://microtool-omics.streamlit.app/?tool=2">Tool #2: Automated Batch Primer Designer ($40)</option>
@@ -65,70 +66,120 @@
                                 <option value="https://microtool-omics.streamlit.app/?tool=7">Tool #7: Automated ANOVA &amp; Post-Hoc Suite ($40)</option>
                                 <option value="https://microtool-omics.streamlit.app/?tool=8">Tool #8: Kaplan-Meier Survival Plotter ($40)</option>
                             </select>
-                            <a id="directLaunchLink" href="https://microtool-omics.streamlit.app/" target="_blank" rel="noopener noreferrer" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-lg text-center whitespace-nowrap transition">
+                            <a id="directLaunchLink" href="https://microtool-omics.streamlit.app/" target="_blank" rel="noopener noreferrer" class="text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white px-4 py-2.5 rounded-lg text-center whitespace-nowrap transition shadow-md">
                                 Launch Live Tool &amp; Preview Free ➔
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Custom Modules -->
-                <div class="mb-8">
-                    <h3 class="text-xl font-semibold border-b pb-2 mb-4">Custom Bioinformatics Modules</h3>
+                <!-- Custom Bioinformatics Modules & Tiers -->
+                <div class="space-y-6">
+                    <h3 class="text-xl font-bold text-white border-b border-slate-800 pb-2">Enterprise Custom Bioinformatics Tiers</h3>
                     
-                    <label class="flex items-center p-4 border rounded-lg hover:bg-blue-50 cursor-pointer transition mb-3">
-                        <input type="checkbox" class="module-checkbox w-5 h-5 text-blue-600" value="500" data-type="custom">
-                        <div class="ml-4 flex-grow">
-                            <span class="block font-bold">RNA-Seq Differential Expression</span>
-                            <span class="text-sm text-gray-500">Full pipeline from raw FASTQ to annotated DEGs</span>
+                    <!-- Tier 1 -->
+                    <div class="p-5 border border-slate-800 bg-slate-950/50 rounded-xl">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold text-cyan-400 tracking-wider">TIER 1: VARIANT CALLING (WGS/WES)</span>
+                            <span class="text-xs bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-bold">Bundle: $380 <s class="text-slate-500 text-[10px]">$500</s></span>
                         </div>
-                        <span class="font-bold text-blue-700">$500</span>
-                    </label>
+                        <div class="space-y-2 mb-4">
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-cyan-500" value="50" data-type="custom"> FastQC & Trimming <span class="ml-auto font-mono text-cyan-400">$50</span></label>
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-cyan-500" value="150" data-type="custom"> BWA-MEM Alignment <span class="ml-auto font-mono text-cyan-400">$150</span></label>
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-cyan-500" value="100" data-type="custom"> BCFtools Variant Calling <span class="ml-auto font-mono text-cyan-400">$100</span></label>
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-cyan-500" value="80" data-type="custom"> CSV Clinical Annotation <span class="ml-auto font-mono text-cyan-400">$80</span></label>
+                        </div>
+                        <label class="flex items-center p-3 bg-cyan-950/30 border border-cyan-500/30 rounded-lg cursor-pointer">
+                            <input type="checkbox" class="module-checkbox mr-3 w-5 h-5 rounded bg-slate-900 border-slate-700 text-cyan-500" value="380" data-type="custom">
+                            <span class="font-bold text-white text-sm">🔥 Select Full Tier 1 Bundle</span>
+                            <span class="ml-auto font-bold text-cyan-400">$380</span>
+                        </label>
+                    </div>
 
-                    <label class="flex items-center p-4 border rounded-lg hover:bg-blue-50 cursor-pointer transition mb-3">
-                        <input type="checkbox" class="module-checkbox w-5 h-5 text-blue-600" value="800" data-type="custom">
-                        <div class="ml-4 flex-grow">
-                            <span class="block font-bold">Single-Cell Transcriptomics (scRNA-seq)</span>
-                            <span class="text-sm text-gray-500">Clustering, trajectory inference, and marker ID</span>
+                    <!-- Tier 2 -->
+                    <div class="p-5 border border-slate-800 bg-slate-950/50 rounded-xl">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold text-purple-400 tracking-wider">TIER 2: TRANSCRIPTOMICS (RNA-SEQ)</span>
+                            <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded font-bold">Bundle: $410 <s class="text-slate-500 text-[10px]">$550</s></span>
                         </div>
-                        <span class="font-bold text-blue-700">$800</span>
-                    </label>
+                        <div class="space-y-2 mb-4">
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-purple-500" value="150" data-type="custom"> STAR Read Alignment <span class="ml-auto font-mono text-purple-400">$150</span></label>
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-purple-500" value="80" data-type="custom"> FeatureCounts Quant <span class="ml-auto font-mono text-purple-400">$80</span></label>
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-purple-500" value="120" data-type="custom"> DESeq2 Differential Math <span class="ml-auto font-mono text-purple-400">$120</span></label>
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-purple-500" value="60" data-type="custom"> Volcano & Heatmap Vis <span class="ml-auto font-mono text-purple-400">$60</span></label>
+                        </div>
+                        <label class="flex items-center p-3 bg-purple-950/30 border border-purple-500/30 rounded-lg cursor-pointer">
+                            <input type="checkbox" class="module-checkbox mr-3 w-5 h-5 rounded bg-slate-900 border-slate-700 text-purple-500" value="410" data-type="custom">
+                            <span class="font-bold text-white text-sm">🔥 Select Full Tier 2 Bundle</span>
+                            <span class="ml-auto font-bold text-purple-400">$410</span>
+                        </label>
+                    </div>
 
-                    <label class="flex items-center p-4 border rounded-lg hover:bg-blue-50 cursor-pointer transition">
-                        <input type="checkbox" class="module-checkbox w-5 h-5 text-blue-600" value="200" data-type="custom">
-                        <div class="ml-4 flex-grow">
-                            <span class="block font-bold">Pathway &amp; Network Enrichment</span>
-                            <span class="text-sm text-gray-500">GO, KEGG, and STRING interaction networks</span>
+                    <!-- Tier 4 -->
+                    <div class="p-5 border border-slate-800 bg-slate-950/50 rounded-xl">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold text-emerald-400 tracking-wider">TIER 4: SINGLE-CELL PROFILING</span>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold">Bundle: $450 <s class="text-slate-500 text-[10px]">$600</s></span>
                         </div>
-                        <span class="font-bold text-blue-700">$200</span>
-                    </label>
+                        <div class="space-y-2 mb-4">
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500" value="150" data-type="custom"> Matrix Processing <span class="ml-auto font-mono text-emerald-400">$150</span></label>
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500" value="120" data-type="custom"> Seurat Clustering <span class="ml-auto font-mono text-emerald-400">$120</span></label>
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500" value="100" data-type="custom"> Cell Type ID Maps <span class="ml-auto font-mono text-emerald-400">$100</span></label>
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500" value="80" data-type="custom"> UMAP Projections <span class="ml-auto font-mono text-emerald-400">$80</span></label>
+                        </div>
+                        <label class="flex items-center p-3 bg-emerald-950/30 border border-emerald-500/30 rounded-lg cursor-pointer">
+                            <input type="checkbox" class="module-checkbox mr-3 w-5 h-5 rounded bg-slate-900 border-slate-700 text-emerald-500" value="450" data-type="custom">
+                            <span class="font-bold text-white text-sm">🔥 Select Full Tier 4 Bundle</span>
+                            <span class="ml-auto font-bold text-emerald-400">$450</span>
+                        </label>
+                    </div>
+
+                    <!-- Tier 5 -->
+                    <div class="p-5 border border-slate-800 bg-slate-950/50 rounded-xl">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold text-amber-400 tracking-wider">TIER 5: MICROBIOME (16S rRNA)</span>
+                            <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-bold">Bundle: $400 <s class="text-slate-500 text-[10px]">$550</s></span>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-amber-500" value="150" data-type="custom"> QIIME2 Execution <span class="ml-auto font-mono text-amber-400">$150</span></label>
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-amber-500" value="100" data-type="custom"> Taxonomic Class. <span class="ml-auto font-mono text-amber-400">$100</span></label>
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-amber-500" value="80" data-type="custom"> Alpha/Beta Diversity <span class="ml-auto font-mono text-amber-400">$80</span></label>
+                            <label class="flex items-center text-sm text-slate-300 cursor-pointer"><input type="checkbox" class="module-checkbox mr-3 w-4 h-4 rounded bg-slate-900 border-slate-700 text-amber-500" value="70" data-type="custom"> Abundance Charts <span class="ml-auto font-mono text-amber-400">$70</span></label>
+                        </div>
+                        <label class="flex items-center p-3 bg-amber-950/30 border border-amber-500/30 rounded-lg cursor-pointer">
+                            <input type="checkbox" class="module-checkbox mr-3 w-5 h-5 rounded bg-slate-900 border-slate-700 text-amber-500" value="400" data-type="custom">
+                            <span class="font-bold text-white text-sm">🔥 Select Full Tier 5 Bundle</span>
+                            <span class="ml-auto font-bold text-amber-400">$400</span>
+                        </label>
+                    </div>
+
                 </div>
             </form>
         </div>
 
         <!-- Right Column: Price Calculator -->
-        <div class="bg-gray-800 text-white p-8 rounded-xl shadow-lg h-fit sticky top-10">
-            <h3 class="text-xl font-bold mb-6 border-b border-gray-600 pb-2">Project Estimate</h3>
+        <div class="bg-slate-900 border border-slate-800 text-white p-8 rounded-2xl shadow-xl h-fit sticky top-10">
+            <h3 class="text-xl font-bold mb-6 border-b border-slate-800 pb-3">Project Estimate</h3>
             
             <div class="flex justify-between mb-4">
-                <span class="text-gray-300">Total Project Value:</span>
-                <span class="font-bold text-xl" id="totalPrice">$0</span>
+                <span class="text-slate-400">Total Project Value:</span>
+                <span class="font-bold text-2xl text-cyan-400 font-mono" id="totalPrice">$0</span>
             </div>
 
-            <div class="flex justify-between mb-6 text-sm text-yellow-400" id="advanceNotice" style="display: none;">
+            <div class="flex justify-between mb-6 text-sm text-amber-400 bg-amber-950/30 border border-amber-500/30 p-3 rounded-lg" id="advanceNotice" style="display: none;">
                 <span>Required 30% Advance:</span>
-                <span class="font-bold" id="advancePrice">$0</span>
+                <span class="font-bold font-mono" id="advancePrice">$0</span>
             </div>
 
-            <p class="text-xs text-gray-400 mb-8" id="statusText">Select modules to generate a quote.</p>
+            <p class="text-xs text-slate-400 mb-8" id="statusText">Select modules to generate a quote.</p>
 
             <!-- Dynamic Action Button -->
-            <a href="#" id="checkoutBtn" target="_blank" rel="noopener noreferrer" class="block w-full bg-blue-600 hover:bg-blue-500 text-center py-3 rounded-lg font-bold transition opacity-50 cursor-not-allowed">
+            <a href="#" id="checkoutBtn" target="_blank" rel="noopener noreferrer" class="block w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 text-center py-3.5 rounded-xl font-bold transition opacity-50 cursor-not-allowed shadow-lg">
                 Awaiting Selection
             </a>
 
             <!-- Secondary Live Preview Link for Express Tools -->
-            <a href="https://microtool-omics.streamlit.app/" id="liveAppSecondaryBtn" target="_blank" rel="noopener noreferrer" style="display: none;" class="block w-full mt-3 border border-purple-400/60 text-purple-300 hover:bg-purple-900/40 text-center py-2.5 rounded-lg text-xs font-semibold transition">
+            <a href="https://microtool-omics.streamlit.app/" id="liveAppSecondaryBtn" target="_blank" rel="noopener noreferrer" style="display: none;" class="block w-full mt-3 border border-purple-500/50 text-purple-300 hover:bg-purple-950/50 text-center py-2.5 rounded-xl text-xs font-semibold transition">
                 Or Preview Your Data in OmicsExpress First ↗
             </a>
         </div>
@@ -191,7 +242,7 @@
                 advanceNoticeEl.style.display = 'flex';
                 liveAppSecondaryBtn.style.display = 'none';
                 
-                checkoutBtn.innerText = "Continue to Intake Form";
+                checkoutBtn.innerText = "Continue to Intake Form ➔";
                 checkoutBtn.href = googleFormLink;
                 checkoutBtn.setAttribute('target', '_blank');
                 checkoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
