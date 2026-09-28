@@ -16,6 +16,9 @@
                 <a href="https://microtool-omics.streamlit.app/" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 px-3.5 py-1.5 rounded-lg transition shadow-md">
                     Launch OmicsExpress Suite ↗
                 </a>
+                <a href="https://genometech-client-app.streamlit.app/" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-slate-300 hover:text-white flex items-center gap-1">
+                    <span>🔐</span> Client Login
+                </a>
                 <a href="index.html" class="hover:text-cyan-400 text-sm font-medium transition">← Back to Home</a>
             </div>
         </div>
@@ -114,7 +117,6 @@
                             <span class="ml-auto font-bold text-purple-400">$410</span>
                         </label>
                     </div>
-
                     <!-- Tier 4 -->
                     <div class="p-5 border border-slate-800 bg-slate-950/50 rounded-xl">
                         <div class="flex justify-between items-center mb-3">
@@ -173,8 +175,8 @@
 
             <p class="text-xs text-slate-400 mb-8" id="statusText">Select modules to generate a quote.</p>
 
-            <!-- Dynamic Action Button -->
-            <a href="#" id="checkoutBtn" target="_blank" rel="noopener noreferrer" class="block w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 text-center py-3.5 rounded-xl font-bold transition opacity-50 cursor-not-allowed shadow-lg">
+           <!-- Dynamic Action Button -->
+            <a href="https://genometech-checkout.streamlit.app/" id="checkoutBtn" target="_blank" rel="noopener noreferrer" class="block w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 text-center py-3.5 rounded-xl font-bold transition opacity-50 cursor-not-allowed shadow-lg">
                 Awaiting Selection
             </a>
 
@@ -197,15 +199,17 @@
         const directLaunchLink = document.getElementById('directLaunchLink');
         const liveAppSecondaryBtn = document.getElementById('liveAppSecondaryBtn');
 
-        // Your specific links!
-        const razorpayLink = "https://rzp.io/rzp/UVDck3w";
-        const googleFormLink = "https://forms.gle/9gqcYrc3NjtAn7z59";
+        // Standalone Checkout App URL
+        const checkoutAppUrl = "https://genometech-checkout.streamlit.app/";
+        const expressRazorpayLink = "https://rzp.io/rzp/UVDck3w";
 
         // Update direct launch link when dropdown changes
-        expressToolSelect.addEventListener('change', function() {
-            directLaunchLink.href = this.value;
-            liveAppSecondaryBtn.href = this.value;
-        });
+        if(expressToolSelect && directLaunchLink) {
+            expressToolSelect.addEventListener('change', function() {
+                directLaunchLink.href = this.value;
+                liveAppSecondaryBtn.href = this.value;
+            });
+        }
 
         checkboxes.forEach(box => {
             box.addEventListener('change', calculate);
@@ -228,25 +232,23 @@
 
             if (total === 0) {
                 checkoutBtn.innerText = "Awaiting Selection";
-                checkoutBtn.href = "#";
-                checkoutBtn.removeAttribute('target');
+                checkoutBtn.href = checkoutAppUrl;
                 checkoutBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 advanceNoticeEl.style.display = 'none';
                 liveAppSecondaryBtn.style.display = 'none';
                 statusText.innerText = "Select modules to generate a quote.";
             } 
             else if (hasCustom) {
-                // Enterprise Custom Project Logic
+                // Enterprise Custom Project Logic -> Routes to your Checkout & Intake App
                 let advance = total * 0.30;
                 advancePriceEl.innerText = "$" + advance.toFixed(2);
                 advanceNoticeEl.style.display = 'flex';
                 liveAppSecondaryBtn.style.display = 'none';
                 
-                checkoutBtn.innerText = "Continue to Intake Form ➔";
-                checkoutBtn.href = googleFormLink;
-                checkoutBtn.setAttribute('target', '_blank');
+                checkoutBtn.innerText = "Proceed to Secure Checkout & Intake ➔";
+                checkoutBtn.href = checkoutAppUrl;
                 checkoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                statusText.innerText = "Custom projects require a 30% advance after requirements review. Click to fill out your project details.";
+                statusText.innerText = "Custom projects require a 30% advance. Click to submit requirements & pay securely.";
             } 
             else if (hasExpress && !hasCustom) {
                 // Express Micro-Tool Logic
@@ -254,8 +256,7 @@
                 liveAppSecondaryBtn.style.display = 'block';
                 
                 checkoutBtn.innerText = "Pay $40 USD (Founding Lab Rate)";
-                checkoutBtn.href = razorpayLink;
-                checkoutBtn.setAttribute('target', '_blank');
+                checkoutBtn.href = expressRazorpayLink;
                 checkoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 statusText.innerText = "Founding Lab Offer ($40 USD, reg. $100). Pay upfront for instant unlock, or preview your dataset live in the OmicsExpress portal.";
             }

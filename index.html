@@ -44,7 +44,9 @@
             <!-- Action Buttons -->
             <div class="flex items-center space-x-4">
                 <!-- Client Login Button -->
-                <a href="#" class="text-sm font-bold text-slate-300 hover:text-white flex items-center gap-2 border border-slate-700 px-4 py-2 rounded-full hover:bg-slate-800 transition">
+                <a href="https://genometech-client-app.streamlit.app/" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-slate-300 hover:text-white flex items-center gap-2 border border-slate-700 px-4 py-2 rounded-full hover:bg-slate-800 transition">
+                    <span>🔐</span> Client Login
+                </a>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
                     Client Login
                 </a>
@@ -167,7 +169,7 @@
                 <h3 class="text-xl font-bold text-white mb-2">Single-Cell Profiling</h3>
                 <p class="text-slate-400 text-sm mb-6">Explore cell clusters, UMAP projections, and biomarker distributions.</p>
             </div>
-            <a href="https://microtool-omics.streamlit.app/?page=tier4_singlecell" target="_blank" rel="noopener noreferrer" class="w-full block text-center bg-emerald-500/10 text-emerald-400 border border-emerald-500/50 font-semibold py-2.5 rounded-lg hover:bg-emerald-500 hover:text-slate-900 transition text-sm">View Live Dashboard</a>
+            <a href="https://genometech-tier4.streamlit.app/" target="_blank" rel="noopener noreferrer" class="w-full block text-center bg-emerald-500/10 text-emerald-400 border border-emerald-500/50 font-semibold py-2.5 rounded-lg hover:bg-emerald-500 hover:text-slate-900 transition text-sm">View Live Dashboard</a>
         </div>
     </div>
 
@@ -181,7 +183,7 @@
                             <h3 class="text-xl font-bold text-white mb-2">Microbiome (16S)</h3>
                             <p class="text-slate-400 text-sm mb-6">Interactive taxonomic abundance bars and alpha/beta diversity metrics.</p>
                         </div>
-                        <a href="https://microtool-omics.streamlit.app/?page=tier5_microbiome" target="_blank" rel="noopener noreferrer" class="w-full block text-center bg-amber-500/10 text-amber-400 border border-amber-500/50 font-semibold py-2.5 rounded-lg hover:bg-amber-500 hover:text-slate-900 transition text-sm">View Live Dashboard</a>
+                        <a href="https://genometech-tier5.streamlit.app/" target="_blank" rel="noopener noreferrer" class="w-full block text-center bg-amber-500/10 text-amber-400 border border-amber-500/50 font-semibold py-2.5 rounded-lg hover:bg-amber-500 hover:text-slate-900 transition text-sm">View Live Dashboard</a>
                     </div>
                 </div>
 
@@ -248,25 +250,33 @@
             <span class="text-cyan-400 font-black text-2xl">$380</span>
         </div>
 
-        <button class="w-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 py-2.5 rounded-lg hover:bg-cyan-500 hover:text-slate-900 transition text-sm font-bold shadow-[0_0_10px_rgba(34,211,238,0.1)]">Select Modules</button>
+        <a href="https://genometech-checkout.streamlit.app/" target="_blank" rel="noopener noreferrer" class="w-full block text-center bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 py-2.5 rounded-lg hover:bg-cyan-500 hover:text-slate-900 transition text-sm font-bold shadow-[0_0_10px_rgba(34,211,238,0.1)]">Select Modules</a>
     </div>
 
-                <!-- Tier 2 -->
-                <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl hover:border-purple-500/50 transition flex flex-col">
-                    <div class="text-xs font-bold text-purple-400 tracking-wider mb-2">TIER 2</div>
-                    <h4 class="text-xl font-bold text-white mb-4">Transcriptomics (RNA-Seq)</h4>
-                    <ul class="text-sm text-slate-400 space-y-3 mb-6 flex-grow border-t border-slate-800/50 pt-4">
-                        <li class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="text-purple-400">✓</span> STAR Read Alignment</span> <span class="text-white font-mono">$150</span></li>
-                        <li class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="text-purple-400">✓</span> FeatureCounts Quant</span> <span class="text-white font-mono">$80</span></li>
-                        <li class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="text-purple-400">✓</span> DESeq2 Differential Math</span> <span class="text-white font-mono">$120</span></li>
-                        <li class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="text-purple-400">✓</span> Volcano & Heatmap Vis</span> <span class="text-white font-mono">$60</span></li>
-                    </ul>
-                    <div class="border-t border-slate-700/50 pt-4 mb-4 flex justify-between items-end">
-                        <span class="text-slate-300 font-bold text-sm">Full Tier Bundle</span>
-                        <span class="text-purple-400 font-black text-2xl">$410</span>
-                    </div>
-                    <button class="w-full bg-purple-500/10 text-purple-400 border border-purple-500/30 py-2.5 rounded-lg hover:bg-purple-500 hover:text-slate-900 transition text-sm font-bold shadow-[0_0_10px_rgba(168,85,247,0.1)]">Select Modules</button>
-                </div>
+    <!-- Tier 2 -->
+<div class="bg-slate-900 border border-slate-800 p-6 rounded-xl hover:border-purple-500/50 transition flex flex-col relative overflow-hidden">
+    <div class="absolute top-0 right-0 bg-purple-500/20 text-purple-300 text-[10px] font-bold px-3 py-1 rounded-bl-xl border-l border-b border-purple-500/30">💎 FOUNDING LAB SPECIAL</div>
+    <div class="text-xs font-bold text-purple-400 tracking-wider mb-2">TIER 2</div>
+    <h4 class="text-xl font-bold text-white mb-4">Transcriptomics (RNA-Seq)</h4>
+    <ul class="text-sm text-slate-400 space-y-3 mb-6 flex-grow border-t border-slate-800/50 pt-4">
+        <li class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="text-purple-400">✓</span> STAR Read Alignment</span> <span class="text-white font-mono">$150</span></li>
+        <li class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="text-purple-400">✓</span> FeatureCounts Quant</span> <span class="text-white font-mono">$80</span></li>
+        <li class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="text-purple-400">✓</span> DESeq2 Differential Math</span> <span class="text-white font-mono">$120</span></li>
+        <li class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="text-purple-400">✓</span> Volcano & Heatmap Vis</span> <span class="text-white font-mono">$60</span></li>
+    </ul>
+    <div class="border-t border-slate-700/50 pt-4 mb-4 flex justify-between items-end">
+        <div>
+            <span class="text-slate-500 line-through text-sm font-bold">$550</span>
+            <div class="text-slate-300 font-bold text-xs">Full Tier Bundle</div>
+        </div>
+        <div class="text-right">
+            <span class="text-purple-400 font-black text-2xl">$410</span>
+            <div class="text-emerald-400 text-xs font-semibold">30% Advance: $123</div>
+        </div>
+    </div>
+
+    <a href="https://genometech-checkout.streamlit.app/" target="_blank" class="w-full text-center bg-purple-500/10 text-purple-400 border border-purple-500/30 py-2.5 rounded-lg hover:bg-purple-500 hover:text-slate-900 transition text-sm font-bold shadow-[0_0_10px_rgba(168,85,247,0.1)] block">Select Tier 2 Bundle ➔</a>
+</div>
 
                 <!-- Tier 4 -->
     <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl hover:border-emerald-500/50 transition flex flex-col relative overflow-hidden">
@@ -293,7 +303,7 @@
             <span class="text-emerald-400 font-black text-2xl">$450</span>
         </div>
 
-        <button class="w-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 py-2.5 rounded-lg hover:bg-emerald-500 hover:text-slate-900 transition text-sm font-bold shadow-[0_0_10px_rgba(16,185,129,0.1)]">Select Modules</button>
+        <a href="https://genometech-checkout.streamlit.app/" target="_blank" rel="noopener noreferrer" class="w-full block text-center bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 py-2.5 rounded-lg hover:bg-emerald-500 hover:text-slate-900 transition text-sm font-bold shadow-[0_0_10px_rgba(16,185,129,0.1)]">Select Modules</a>
     </div>
 
                 <!-- Tier 5 -->
@@ -321,7 +331,7 @@
             <span class="text-amber-400 font-black text-2xl">$400</span>
         </div>
 
-        <button class="w-full bg-amber-500/10 text-amber-400 border border-amber-500/30 py-2.5 rounded-lg hover:bg-amber-500 hover:text-slate-900 transition text-sm font-bold shadow-[0_0_10px_rgba(245,158,11,0.1)]">Select Modules</button>
+        <a href="https://genometech-checkout.streamlit.app/" target="_blank" rel="noopener noreferrer" class="w-full block text-center bg-amber-500/10 text-amber-400 border border-amber-500/30 py-2.5 rounded-lg hover:bg-amber-500 hover:text-slate-900 transition text-sm font-bold shadow-[0_0_10px_rgba(245,158,11,0.1)]">Select Modules</a>
     </div>
 
                 <!-- Coming Soon Tier -->
