@@ -45,9 +45,9 @@
             <div class="flex items-center space-x-4">
                 <!-- Client Login Button -->
                 <a href="https://genometech-client-app.streamlit.app/" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-slate-300 hover:text-white flex items-center gap-2 border border-slate-700 px-4 py-2 rounded-full hover:bg-slate-800 transition">
-                    <span>🔐</span> Client Login
-                </a>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
+                    </svg>
                     Client Login
                 </a>
             </div>
@@ -522,6 +522,7 @@
             </div>
         </div>
     </section>
+    
    <!-- Client Journey & Data Security Section -->
     <section id="workflow" class="py-24 relative bg-slate-950 border-b border-slate-800/50">
         <div class="container mx-auto px-6 max-w-7xl relative z-10">
@@ -529,7 +530,15 @@
             <!-- Workflow Header -->
             <div class="text-center mb-16">
                 <h2 class="text-3xl md:text-5xl font-black text-white mb-4">The Client <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Journey</span></h2>
-                <p class="text-slate-400 max-w-2xl mx-auto">A frictionless, transparent process built entirely on secure Streamlit infrastructure and encrypted gateways.</p>
+                <p class="text-slate-400 max-w-2xl mx-auto mb-6">A frictionless, transparent process built entirely on secure Streamlit infrastructure and encrypted gateways.</p>
+                
+                <!-- On-Demand Cloud Server Wake-Up Note -->
+                <div class="max-w-3xl mx-auto px-5 py-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-slate-300 text-xs md:text-sm flex items-center justify-center gap-3 shadow-lg">
+                    <span class="text-lg">⚡</span>
+                    <p class="text-left md:text-center">
+                        <strong class="text-emerald-400">Note on Dedicated Cloud Servers:</strong> Our Checkout, Express Tools, and Client Greenroom run on on-demand cloud servers. If a portal is in standby mode when you open it, simply click <strong class="text-white">"Yes, get this app back up!"</strong> and wait 15–20 seconds for your live workspace to launch.
+                    </p>
+                </div>
             </div>
 
             <!-- 4-Step Timeline Grid -->
