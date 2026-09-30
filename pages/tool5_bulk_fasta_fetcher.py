@@ -156,23 +156,22 @@ def reset_on_mode_change_t5():
 
 st.markdown("## Bulk NCBI & Ensembl FASTA Sequence Fetcher")
 st.markdown(
-    "**What we do in this tool:** We utilize Python-based REST API integrations to query the NCBI Entrez and Ensembl databases "
-    "to instantly retrieve, format, and compile full **Nucleotide (cDNA, CDS, Genomic)** or **Protein (Amino Acid)** `.fasta` sequences (limited to **5,000 IDs** per run to protect server stability). "
-    "We also compute biophysical parameters (GC%, MW, pI) and screen for cloning restriction sites.\n\n"
-    "**Files Provided:** A compiled Multi-FASTA text file (`.fasta`) and a Metadata/Quality Control table (`.csv`)."
+    "Upload or paste a batch of **NCBI RefSeq (`NM_`, `NR_`, `NP_`, `XM_`)** or **Ensembl (`ENSG`, `ENST`, `ENSP`)** accession IDs to "
+    "instantly retrieve, format, and compile full **Nucleotide (cDNA, CDS, Genomic)** or **Protein (Amino Acid)** `.fasta` sequences (limited to **5,000 IDs** per run to protect server stability). "
+    "Includes **ORF Start/Stop Codon Verification, Cloning Restriction Site Screening (`EcoRI/BamHI/BsaI`), Isoelectric Point (`pI`), and Molecular Weight (`kDa`)**."
 )
 
-with st.expander("📋 Required File Formats & Complete Researcher Columns (.csv, .txt, .tsv)", expanded=True):
+with st.expander("📋 Accepted Accession Formats & Complete Researcher Columns (.csv, .txt, .tsv)", expanded=True):
     st.markdown("""
-    * **Accepted Accession Databases (Upload up to 5,000 IDs):**
+    * **Supported Accession Databases (Up to 5,000 per run):**
       1. **Ensembl IDs:** Gene (`ENSG...`), Transcript (`ENST...`), or Protein (`ENSP...`) across Human, Mouse, Rat, Zebrafish, Plant, and Yeast.
       2. **NCBI RefSeq / GenBank IDs:** mRNA/cDNA (`NM_...`, `XM_...`), non-coding RNA (`NR_...`), Genomic (`NC_...`, `NG_...`), or Protein (`NP_...`, `XP_...`).
     * **Complete Wet-Lab & Bioinformatics Columns Included:**
       1. **Numeric Biophysical Columns:** `Sequence_Length (bp/aa)`, `GC_Content (%)`, `Hydrophobic_AA (%)`, `Molecular_Weight (kDa)`, `Predicted_Protein_pI`, and `Ambiguous_Count (N/X)`.
       2. **Cloning & Synthesis QC:** `ORF_&_Codon_Status` (verifies `ATG` start and `TAA/TAG/TGA` stop codons) and `Internal_Restriction_Sites` (screens for `EcoRI, BamHI, HindIII, NotI, BsaI, BsmBI`).
       3. **3 Instant Deliverables:** (1) Compiled Multi-FASTA (`.fasta`), (2) Excel-Sortable Biophysical & Cloning Metadata Table (`.csv`), and (3) Unresolved Accessions Audit Log (`.csv`).
-    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Sequence (`.fasta`) and vector outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**).
-    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Sequence Retrieval Engine** and **Model Organism**. Adjusting FASTA header formats, line wrapping, deduplication, or strand orientation within your unlocked mode is free; switching the Core Engine, Model Organism, or uploading a new file fundamentally changes the dataset and will require a new run license.
+    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Sequence (`.fasta`) and vector figure (`.svg` / `.html`) outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**).
+    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Sequence Retrieval Engine** and **Model Organism**. Adjusting FASTA header formats, line wrapping, deduplication, or strand orientation within your unlocked mode is free; switching the Core Engine/Organism or uploading a new file fundamentally changes the dataset and will require a new run license.
     """)
 
 # ==========================================
@@ -201,7 +200,7 @@ DEMO_CACHE = {
     "NP_009225": {"resolved": "NP_009225.1", "db": "NCBI Protein", "gene": "BRAF", "mol": "Protein (Amino Acid)", "desc": "B-Raf proto-oncogene serine/threonine-protein kinase isoform a", "seq": "MAALSGGGGGGAEPGQALFNGDMEPEAGAGAGAAASSAADPAIPEEVWNIKQMIKLTQEHIEALLDKFGGEHNPPSIYLEAYEEYTSKLDALQQREQQLLESLGNGTDFSVSSSASMDTVTSSSSSSLSVLPSSLSVFQNPTDVARSNPKSPQKPIVRVFLPNKQRTVVPARCGVTVRDSLKKALMMRGLIPECCAVYRIQDGEKKPIGWDTDISWLTGEELHVEVLENVPLTTHNFVRKTFFTLAFCDFCRKLLFQGFRCQTCGYKFHQRCSTEVPLMCVNYDQLDLLFVSKFFEHHPIPQEEASLAETALTSGSSPSAPASDSIGPQILTSPSPSKSIPIPQPFRPADEDHRNQFGQRDRSSSAPNVHINTIEPVNIDDLIRDQGFRGDGGSTTGLSATPPASLPGSLTNVKALQKSPGPQRERKSSSSSEDRNRMKTLGRRDSSDDWEIPDGQITVGQRIGSGSFGTVYKGKWHGDVAVKMLNVTAPTPQQLQAFKNEVGVLRKTRHVNILLFMGYSTKPQLAIVTQWCEGSSLYHHLHIIETKFEMIKLIDIARQTAQGMDYLHAKSIIHRDLKSNNIFLHEDLTVKIGDFGLATVKSRWSGSHQFEQLSGSILWMAPEVIRMQDKNPYSFQSDVYAFGIVLYELMTGQLPYSNINNRDQIIFMVGRGYLSPDLSKVRSNCPKAMKRLMAECLKKKRDERPLFPQILASIELLARSLPKIHRSASEPSLNRAGFQTEDFSLYACASPKTPIQAGGYGAFPVH"}
 }
 
-DEMO_ACCESSION_DF = pd.DataFrame({"Accession_ID": ["NM_000546.6", "NM_007294.4", "NM_005228.5", "NP_000537.3"]})
+DEMO_ACCESSION_DF = pd.DataFrame({"Accession_ID": ["NM_000546.6", "NM_007294.4", "NM_005228.5", "ENST00000269305.9", "NP_000537.3"]})
 
 def rev_comp_dna(seq):
     trans = str.maketrans("ATGCRYSWKMBDHVNatgcryswkmbdhvn", "TACGYRSWMKVHDBNtacgyrswmkvhdbn")
@@ -266,7 +265,7 @@ def fetch_live_accession(raw_acc, core_engine, strip_ver=True):
     # 1. Local Cache Lookup
     if lookup_key in DEMO_CACHE:
         item = DEMO_CACHE[lookup_key].copy()
-        if core_engine == "Protein / Peptide Sequences Only (NCBI NP_/XP_, Ensembl ENSP & CDS Translation)" and "Nucleotide" in item["mol"]:
+        if "Protein" in core_engine and "Nucleotide" in item["mol"]:
             item["seq"] = translate_dna_to_protein(item["seq"])
             item["mol"] = "Protein (Translated CDS)"
             item["desc"] = f"{item['desc']} (Translated)"
@@ -331,26 +330,19 @@ paste_ids = st.text_area(
     on_change=reset_on_mode_change_t5
 )
 
+# Robustly load the dataframe, preventing blank column names
 df_input = None
 if uploaded_file is not None:
     try:
         fname = uploaded_file.name.lower()
-        if fname.endswith(".tsv"):
-            df_input = pd.read_csv(uploaded_file, sep="\t")
-        elif fname.endswith(".txt"):
-            df_input = pd.read_csv(uploaded_file, sep=r'\t|,', engine='python')
-        else:
-            df_input = pd.read_csv(uploaded_file)
+        # Parse based on extension
+        df_input = pd.read_csv(uploaded_file, sep=None, engine="python")
             
         # Fail-safe: Detect if a headerless .txt file was uploaded and pandas grabbed the first ID as the column name
-        if not df_input.empty and str(df_input.columns[0]).upper().startswith(("NM_", "NP_", "ENS", "NC_", "NR_")):
+        first_col = str(df_input.columns[0]).upper()
+        if not df_input.empty and first_col.startswith(("NM_", "NP_", "ENS", "NC_", "NR_", "XM_", "XP_")):
             uploaded_file.seek(0)
-            if fname.endswith(".tsv"):
-                df_input = pd.read_csv(uploaded_file, sep="\t", header=None)
-            elif fname.endswith(".txt"):
-                df_input = pd.read_csv(uploaded_file, sep=r'\t|,', engine='python', header=None)
-            else:
-                df_input = pd.read_csv(uploaded_file, header=None)
+            df_input = pd.read_csv(uploaded_file, sep=None, engine='python', header=None)
             df_input.columns = ["Accession_ID"] + [f"Col_{i}" for i in range(1, len(df_input.columns))]
             
     except Exception as e:
@@ -361,6 +353,10 @@ elif paste_ids.strip():
 elif use_sample:
     df_input = DEMO_ACCESSION_DF.copy()
 
+# Ensure we never have a blank column name
+if df_input is not None and not df_input.empty:
+    df_input.columns = [str(c).strip() if str(c).strip() else f"Column_{i}" for i, c in enumerate(df_input.columns)]
+
 # ==========================================
 # 6. CONFIGURATION UI LAYOUT 
 # ==========================================
@@ -368,7 +364,7 @@ if df_input is not None and not df_input.empty:
     with st.expander(f"👁️ Loaded Accession Input Preview ({len(df_input)} Accessions Ready)", expanded=False):
         st.dataframe(df_input.head(5), use_container_width=True)
 
-    st.markdown("### ⚙️️ Configure Sequence Retrieval Engine & FASTA Formatting")
+    st.markdown("### ⚙ Configure Sequence Retrieval Engine & FASTA Formatting")
 
     c_top1, c_top2 = st.columns(2)
     with c_top1:
@@ -385,11 +381,15 @@ if df_input is not None and not df_input.empty:
             on_change=reset_on_mode_change_t5
         )
     with c_top2:
-        organism = st.selectbox(
+        org_select = st.selectbox(
             "Model Organism (Switching organism starts a new pipeline run):",
-            ["Homo sapiens (Human)", "Mus musculus (Mouse)", "Danio rerio (Zebrafish)", "Universal / Cross-Species"],
+            ["Homo sapiens (Human)", "Mus musculus (Mouse)", "Danio rerio (Zebrafish)", "Universal / Cross-Species", "Other (Custom Organism)"],
             on_change=reset_on_mode_change_t5
         )
+        if org_select == "Other (Custom Organism)":
+            organism = st.text_input("Enter Custom Organism Name:", value="Arabidopsis thaliana", on_change=reset_on_mode_change_t5)
+        else:
+            organism = org_select
 
     c1, c2, c3 = st.columns(3)
     with c1:
@@ -449,7 +449,7 @@ if df_input is not None and not df_input.empty:
             if dedup_ids:
                 raw_list = list(dict.fromkeys(raw_list))
 
-            # Strictly enforce 5,000 ID limit
+            # Strictly enforce 5,000 ID limit to prevent API bans
             if len(raw_list) > 5000:
                 st.warning("⚠️ File exceeds 5,000 IDs. Truncating to the first 5,000 to ensure API stability.")
                 raw_list = raw_list[:5000]
