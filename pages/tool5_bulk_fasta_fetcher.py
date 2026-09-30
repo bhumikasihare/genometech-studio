@@ -560,7 +560,7 @@ if df_input is not None and not df_input.empty:
     # STEP 4: RUN BULK FASTA FETCHER
     # ==========================================
     if st.button("🚀 Fetch & Compile Bulk FASTA Sequences"):
-        if st.session_state["locked_mode_t5"] is not None and st.session_state["locked_mode_t5"] != current_mode_sig:
+        if st.session_state.get("locked_mode_t5") is not None and st.session_state.get("locked_mode_t5") != current_mode_sig:
             st.session_state["is_unlocked_t5"] = False
         st.session_state["locked_mode_t5"] = current_mode_sig
 
@@ -572,25 +572,35 @@ if df_input is not None and not df_input.empty:
             failed_rows = []
             fasta_blocks = []
 
-            raw_list = df_input[acc_col].astype(str).str.strip().tolist()
+            # 1. Safely extract and clean accessions into pure strings
+            if acc_col in df_input.columns:
+                raw_list = [str(x).strip() for x in df_input[acc_col].dropna() if str(x).strip()]
+            else:
+                raw_list = [str(x).strip() for x in df_input.iloc[:, 0].dropna() if str(x).strip()]
+
             if dedup_ids:
                 raw_list = list(dict.fromkeys(raw_list))
 
             for q_acc in raw_list:
-                if not q_acc or q_acc.lower() == "nan":
+                # Safe string conversion & NaN guard
+                q_acc_str = str(q_acc).strip()
+                if not q_acc_str or q_acc_str.lower() in ["nan", "none", "null"]:
                     continue
 
-                res = fetch_live_accession(q_acc, core_engine, strip_ver)
-                if res["status"] != "SUCCESS" or not res["seq"]:
+                res = fetch_live_accession(q_acc_str, core_engine, strip_ver)
+                
+                # Check status and sequence safely
+                if not res or res.get("status") != "SUCCESS" or not res.get("seq"):
                     failed_rows.append({
-                        "Query_Accession_ID": q_acc,
-                        "Fetch_Status": res["status"],
-                        "Diagnostic_Note": res["desc"]
+                        "Query_Accession_ID": q_acc_str,
+                        "Fetch_Status": res.get("status", "FAILED") if res else "FAILED",
+                        "Diagnostic_Note": res.get("desc", "No sequence returned from repository") if res else "Unknown Fetch Error"
                     })
                     continue
 
-                seq_str = res["seq"].upper().strip()
-                is_prot = "Protein" in res["mol"]
+                seq_str = str(res["seq"]).upper().strip()
+                mol_type = str(res.get("mol", ""))
+                is_prot = "Protein" in mol_type or "peptide" in mol_type.lower()
 
                 # Filter nucleotide-only modes if a pure protein ID was passed
                 if any(k in core_engine for k in ["cDNA", "CDS Only", "Genomic", "Nucleotide Sequences"]) and is_prot:
@@ -610,6 +620,46 @@ if df_input is not None and not df_input.empty:
                 unit_str = "aa" if is_prot else "bp"
                 comp_tag = f"Hydrophobic:{hydro_pct}%" if is_prot else f"GC:{gc_pct}%"
 
+                # Compile structured row
+                header_def = f">{res.get('acc', q_acc_str)} | {res.get('desc', 'GenomeTech Target')} | Length:{seq_len}{unit_str} | {comp_tag} | {strand_tag}"
+                
+                # Wrap sequence if requested
+                if wrap_width > 0:
+                    formatted_seq = "\n".join([seq_str[i:i+wrap_width] for i in range(0, len(seq_str), wrap_width)])
+                else:
+                    formatted_seq = seq_str
+
+                fasta_blocks.append(f"{header_def}\n{formatted_seq}")
+
+                compiled_rows.append({
+                    "Accession": res.get("acc", q_acc_str),
+                    "Molecule_Type": mol_type,
+                    "Length": f"{seq_len} {unit_str}",
+                    "GC_or_Hydrophobic_Pct": comp_tag,
+                    "Molecular_Weight_kDa": mw_kda,
+                    "Strand": strand_tag,
+                    "ORF_Integrity": orf_status,
+                    "Isoelectric_Point_pI": pred_pi,
+                    "Description": res.get("desc", "")
+                })
+
+            st.session_state["t5_compiled_df"] = pd.DataFrame(compiled_rows)
+            st.session_state["t5_failed_df"] = pd.DataFrame(failed_rows)
+            st.session_state["t5_fasta_text"] = "\n\n".join(fasta_blocks)
+
+    # STEP 5: DISPLAY RESULTS & EXPORTS
+    # ==========================================
+    if "t5_compiled_df" in st.session_state and not st.session_state["t5_compiled_df"].empty:
+        df_success = st.session_state["t5_compiled_df"]
+        st.success(f"✅ Successfully compiled {len(df_success)} FASTA records!")
+        st.dataframe(df_success, width="stretch")
+
+        st.download_button(
+            label="📥 Download Compiled Multi-FASTA File (.fasta)",
+            data=st.session_state["t5_fasta_text"],
+            file_name="GenomeTech_Compiled_Sequences.fasta",
+            mime="text/plain"
+        )
                 # Build Custom FASTA Header
                 if "Phylogenetics" in header_style:
                     clean_g = res["gene"].replace(" ", "_")
