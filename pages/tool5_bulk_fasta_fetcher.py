@@ -140,7 +140,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. SESSION STATE & RUN LOCKING
+# 2. SESSION STATE INITIALIZATION & RESET
 # ==========================================
 if "is_unlocked_t5" not in st.session_state:
     st.session_state["is_unlocked_t5"] = False
@@ -151,31 +151,31 @@ def reset_on_mode_change_t5():
     st.session_state["is_unlocked_t5"] = False
     st.session_state.pop("fasta_df_t5", None)
     st.session_state.pop("fasta_text_t5", None)
+    st.session_state.pop("failed_df_t5", None)
     st.session_state.pop("stats_t5", None)
 
-# ==========================================
-# 3. TOOL HEADER & INSTRUCTIONS
-# ==========================================
 st.markdown("## Bulk NCBI & Ensembl FASTA Sequence Fetcher")
 st.markdown(
-    "**What we do in this tool:** We utilize Python-based REST API integrations to query the NCBI Entrez and Ensembl databases "
-    "to bulk-download biological sequences based on your accession IDs. We compute biophysical parameters (GC%, MW, pI) and "
-    "screen for cloning restriction sites.\n\n"
-    "**Files Provided:** A compiled Multi-FASTA text file (`.fasta`) and a Metadata/Quality Control table (`.csv`)."
+    "Upload or paste a batch of **NCBI RefSeq (`NM_`, `NR_`, `NP_`, `XM_`)** or **Ensembl (`ENSG`, `ENST`, `ENSP`)** accession IDs to "
+    "instantly retrieve, format, and compile full **Nucleotide (cDNA, CDS, Genomic)** or **Protein (Amino Acid)** `.fasta` sequences. "
+    "Includes **ORF Start/Stop Codon Verification, Cloning Restriction Site Screening (`EcoRI/BamHI/BsaI`), Isoelectric Point (`pI`), and Molecular Weight (`kDa`)**."
 )
 
-with st.expander("📋 Required File Format, Output Details & License Note", expanded=True):
+with st.expander("📋 Accepted Accession Formats & Complete Researcher Columns (.csv, .txt, .tsv)", expanded=True):
     st.markdown("""
-    * **Accepted File Formats:** Upload `.csv`, `.txt`, or `.tsv` files. Your file must contain a column with NCBI (e.g., `NM_`, `NP_`) or Ensembl (e.g., `ENSG`, `ENST`) IDs.
-    * **Data Provided in Files:**
-      1. **FASTA:** Clean, properly formatted sequence blocks wrapped to your specified base-pair length.
-      2. **CSV Table:** Accession resolution, Sequence Length, GC/Hydrophobic %, Molecular Weight (kDa), and Cloning Restriction Cut Sites (`EcoRI`, `BamHI`, `BsaI`, etc).
-    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Sequence (`.fasta`) outputs open natively in any text editor.
-    * **Single-Mode License Note:** Changing the **Core Engine**, **Model Organism**, or **Uploading a New File** fundamentally alters the dataset being queried and will lock the tool, requiring a new run license. Adjusting text formats, header styles, or display settings is completely free.
+    * **Supported Accession Databases:**
+      1. **Ensembl IDs:** Gene (`ENSG...`), Transcript (`ENST...`), or Protein (`ENSP...`) across Human, Mouse, Rat, Zebrafish, Plant, and Yeast.
+      2. **NCBI RefSeq / GenBank IDs:** mRNA/cDNA (`NM_...`, `XM_...`), non-coding RNA (`NR_...`), Genomic (`NC_...`, `NG_...`), or Protein (`NP_...`, `XP_...`).
+    * **Complete Wet-Lab & Bioinformatics Columns Included:**
+      1. **Numeric Biophysical Columns:** `Sequence_Length (bp/aa)`, `GC_Content (%)`, `Hydrophobic_AA (%)`, `Molecular_Weight (kDa)`, `Predicted_Protein_pI`, and `Ambiguous_Count (N/X)`.
+      2. **Cloning & Synthesis QC:** `ORF_&_Codon_Status` (verifies `ATG` start and `TAA/TAG/TGA` stop codons) and `Internal_Restriction_Sites` (screens for `EcoRI, BamHI, HindIII, NotI, BsaI, BsmBI`).
+      3. **3 Instant Deliverables:** (1) Compiled Multi-FASTA (`.fasta`), (2) Excel-Sortable Biophysical & Cloning Metadata Table (`.csv`), and (3) Unresolved Accessions Audit Log (`.csv`).
+    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Sequence (`.fasta`) and vector outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**).
+    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Sequence Retrieval Engine**. Adjusting FASTA header formats, line wrapping, deduplication, or strand orientation within your unlocked mode is free; switching the Core Engine or uploading a new file starts a new run.
     """)
 
 # ==========================================
-# 4. BIOINFORMATICS LOGIC & CACHE
+# 3. CURATED REFERENCE SEQUENCES & BIO HELPERS
 # ==========================================
 CODON_TABLE = {
     "TTT": "F", "TTC": "F", "TTA": "L", "TTG": "L", "CTT": "L", "CTC": "L", "CTA": "L", "CTG": "L",
@@ -188,17 +188,31 @@ CODON_TABLE = {
     "AGT": "S", "AGC": "S", "AGA": "R", "AGG": "R", "GGT": "G", "GGC": "G", "GGA": "G", "GGG": "G"
 }
 
-DEMO_CACHE = {
-    "NM_000546": {"seq": "ATGGAGGAGCCGCAGTCAGATCCTAGCGTCGAGCCCCCTCTGAGTCAGGAAACATTTTCAGACCTATGGAAACTACTTCCTGAAAACAACGTTCTGTCCCCCTTGCCGTCCCAAGCAATGGATGATTTGATGCTGTCCCCGGACGATATTGAACAATGGTTCACTGAAGACCCAGGTCCAGATGAAGCTCCCAGAATGCCAGAGGCTGCTCCCCCCGTGGCCCCTGCACCAGCAGCTCCTACACCGGCGGCCCCTGCACCAGCCCCCTCCTGGCCCCTGTCATCTTCTGTCCCTTCCCAGAAAACCTACCAGGGCAGCTACGGTTTCCGTCTGGGCTTCTTGCATTCTGGGACAGCCAAGTCTGTGACTTGCACGTACTCCCCTGCCCTCAACAAGATGTTTTGCCAACTGGCCAAGACCTGCCCTGTGCAGCTGTGGGTTGATTCCACACCCCCGCCCGGCACCCGCGTCCGCGCCATGGCCATCTACAAGCAGTCACATGA", "desc": "TP53 Tumor protein p53", "mol": "Nucleotide (cDNA)"},
-    "NM_007294": {"seq": "ATGGATTTATCTGCTCTTCGCGTTGAAGAAGTACAAAATGTCATTAATGCTATGCAGAAAATCTTAGAGTGTCCCATCTGTCTGGAGTTGATCAAGGAACCTGTCTCCACAAAGTGTGACCACATATTTTGCAAATTTTGCATGCTGAAACTTCTCAACCAGAAGAAAGGGCCTTCACAGTGTCCTTTATGTAAGAATGATATAACCAAAAGGAGCCTACAAGAAAGTACGAGATTTAGTCAACTTGTTGAAGAGCTATTGAAAATCATTTGTGCTTTTCAGCTTGACACAGGTTTGGAGTATGCAAACAGCTATAATTTTGCAAAAAAGGAAAATAACTCTCCTGAACATCTAAAAGATGAAGTTTCTATCATCCAAAGTATGGGCTACAGAAACCGTGCCAAAAGACTTCTACAGAGTGAACCCGAAAATCCTTCCTTGCAGGAAACCAGTCTCAGTGTCCAACTCTCTAACCTTGGAACTGTGAGAACTCTGAGGACTAA", "desc": "BRCA1 DNA repair associated", "mol": "Nucleotide (cDNA)"},
-    "ENSG00000133703": {"seq": "ATGACTGAATATAAACTTGTGGTAGTTGGAGCTGGTGGCGTAGGCAAGAGTGCCTTGACGATACAGCTAATTCAGAATCATTTTGTGGACGAATATGATCCAACAATAGAGGATTCCTACAGGAAGCAAGTAGTAATTGATGGAGAAACCTGTCTCTTGGATATTCTCGACACAGCAGGTCAAGAGGAGTACAGTGCAATGAGGGACCAGTACATGAGGACTGGGGAGGGCTTTCTTTGTGTATTTGCCATAAATAATACTAAATCATTTGAAGATATTCACCATTATAGAGAACAAATTAAAAGAGTTAAGGACTCTGAAGATGTACCTATGGTCCTAGTAGGAAATAAATGTGATTTGCCTTCTAGAACAGTAGACACAAAACAGGCTCAGGACTTAGCAAGAAGTTATGGAATTCCTTTTATTGAAACATCAGCAAAGACAAGACAGGGTGTTGATGATGCCTTCTATACATTAGTTCGAGAAATTCGAAAACATAAATAA", "desc": "KRAS proto-oncogene", "mol": "Nucleotide (Genomic/CDS)"}
+DEMO_SEQUENCE_CACHE = {
+    "NM_000546": {
+        "resolved": "NM_000546.6", "db": "NCBI RefSeq", "gene": "TP53", "organism": "Homo sapiens", "mol": "Nucleotide (cDNA)",
+        "desc": "Tumor protein p53 (TP53), transcript variant 1, mRNA",
+        "seq": "ATGGAGGAGCCGCAGTCAGATCCTAGCGTCGAGCCCCCTCTGAGTCAGGAAACATTTTCAGACCTATGGAAACTACTTCCTGAAAACAACGTTCTGTCCCCCTTGCCGTCCCAAGCAATGGATGATTTGATGCTGTCCCCGGACGATATTGAACAATGGTTCACTGAAGACCCAGGTCCAGATGAAGCTCCCAGAATGCCAGAGGCTGCTCCCCCCGTGGCCCCTGCACCAGCAGCTCCTACACCGGCGGCCCCTGCACCAGCCCCCTCCTGGCCCCTGTCATCTTCTGTCCCTTCCCAGAAAACCTACCAGGGCAGCTACGGTTTCCGTCTGGGCTTCTTGCATTCTGGGACAGCCAAGTCTGTGACTTGCACGTACTCCCCTGCCCTCAACAAGATGTTTTGCCAACTGGCCAAGACCTGCCCTGTGCAGCTGTGGGTTGATTCCACACCCCCGCCCGGCACCCGCGTCCGCGCCATGGCCATCTACAAGCAGTCACATGA"
+    },
+    "ENST00000269305": {
+        "resolved": "ENST00000269305.9", "db": "Ensembl", "gene": "TP53", "organism": "Homo sapiens", "mol": "Nucleotide (CDS)",
+        "desc": "TP53-201 canonical coding sequence",
+        "seq": "ATGGAGGAGCCGCAGTCAGATCCTAGCGTCGAGCCCCCTCTGAGTCAGGAAACATTTTCAGACCTATGGAAACTACTTCCTGAAAACAACGTTCTGTCCCCCTTGCCGTCCCAAGCAATGGATGATTTGATGCTGTCCCCGGACGATATTGAACAATGGTTCACTGAAGACCCAGGTCCAGATGAAGCTCCCAGAATGCCAGAGGCTGCTCCCCCCGTGGCCCCTGCACCAGCAGCTCCTACACCGGCGGCCCCTGCACCAGCCCCCTCCTGGCCCCTGTCATCTTCTGTCCCTTCCCAGAAAACCTACCAGGGCAGCTACGGTTTCCGTCTGGGCTTCTTGCATTCTGGGACAGCCAAGTCTGTGACTTGCACGTACTCCCCTGCCCTCAACAAGATGTTTTGCCAACTGGCCAAGACCTGCCCTGTGCAGCTGTGGGTTGATTCCACACCCCCGCCCGGCACCCGCGTCCGCGCCATGGCCATCTACAAGCAGTCACATGA"
+    },
+    "NP_000537": {
+        "resolved": "NP_000537.3", "db": "NCBI RefSeq", "gene": "TP53", "organism": "Homo sapiens", "mol": "Protein (Amino Acid)",
+        "desc": "Cellular tumor antigen p53 isoform a",
+        "seq": "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDIEQWFTEDPGPDEAPRMPEAAPPVAPAPAAPTPAAPAPAPSWPLSSSVPSQKTYQGSYGFRLGFLHSGTAKSVTCTYSPALNKMFCQLAKTCPVQLWVDSTPPPGTRVRAMAIYKQSQHMTEVVRRCPHHERCSDSDGLAPPQHLIRVEGNLRVEYLDDRNTFRHSVVVPYEPPEVGSDCTTIHYNYMCNSSCMGGMNRRPILTIITLEDSSGNLLGRNSFEVRVCACPGRDRRTEEENLRKKGEPHHELPPGSTKRALPNNTSSSPQPKKKPLDGEYFTLQIRGRERFEMFRELNEALELKDAQAGKEPGGSRAHSSHLKSKKGQSTSRHKKLMFKTEGPDSD"
+    }
 }
+
+DEMO_ACCESSION_DF = pd.DataFrame({"Accession_ID": ["NM_000546.6", "ENST00000269305.9", "NP_000537.3"]})
 
 def rev_comp_dna(seq):
     trans = str.maketrans("ATGCRYSWKMBDHVNatgcryswkmbdhvn", "TACGYRSWMKVHDBNtacgyrswmkvhdbn")
     return seq.translate(trans)[::-1].upper()
 
-def translate_dna(dna_seq):
+def translate_dna_to_protein(dna_seq):
     s = dna_seq.upper()
     start_idx = max(0, s.find("ATG"))
     aa_list = []
@@ -209,218 +223,388 @@ def translate_dna(dna_seq):
         aa_list.append(aa)
     return "".join(aa_list)
 
-def fetch_live_accession(acc, core_engine):
-    clean_acc = acc.split(".")[0].upper()
-    
-    # Check Cache First
-    if clean_acc in DEMO_CACHE:
-        item = DEMO_CACHE[clean_acc]
-        seq = item["seq"]
-        if "Protein" in core_engine and "Nucleotide" in item["mol"]:
-            seq = translate_dna(seq)
-            mol = "Protein (Translated)"
-        else:
-            mol = item["mol"]
-        return {"status": "SUCCESS", "seq": seq, "desc": item["desc"], "mol": mol}
+def check_orf_and_restriction(seq, is_protein=False):
+    if is_protein:
+        pos_res = seq.count("K") + seq.count("R") + (0.5 * seq.count("H"))
+        neg_res = seq.count("D") + seq.count("E")
+        length = max(1, len(seq))
+        est_pi = round(max(3.8, min(11.8, 6.8 + ((pos_res - neg_res) / length) * 14.0)), 2)
+        return "Full Peptide Chain", "N/A (Protein)", est_pi
 
-    # Live API Fetch
-    if clean_acc.startswith("ENS"):
-        ens_type = "protein" if "Protein" in core_engine else "cdna"
+    s = seq.upper()
+    has_start = s.startswith("ATG")
+    has_stop = s.endswith(("TAA", "TAG", "TGA"))
+    in_frame = (len(s) % 3 == 0)
+    
+    if has_start and has_stop and in_frame: orf_status = "Complete CDS (ATG..Stop, In-Frame)"
+    elif has_start and in_frame: orf_status = "5'-ATG Initiated (In-Frame)"
+    elif "ATG" in s: orf_status = "Contains Internal ORF (+UTR)"
+    else: orf_status = "Non-Coding / Genomic Fragment"
+
+    enzymes = {"EcoRI": "GAATTC", "BamHI": "GGATCC", "HindIII": "AAGCTT", "NotI": "GCGGCCGC", "BsaI": "GGTCTC", "BsmBI": "CGTCTC"}
+    hits = [name for name, site in enzymes.items() if site in s or rev_comp_dna(site) in s]
+    restr_str = "0 Cut Sites (Cloning-Safe)" if not hits else f"Cuts: {', '.join(hits)}"
+    return orf_status, restr_str, 0.0
+
+def calc_seq_biophysics(seq, is_protein=False):
+    seq = seq.upper().strip()
+    length = len(seq)
+    if length == 0: return 0, 0.0, 0.0, 0.0, 0
+
+    if is_protein:
+        hydro_cnt = sum(1 for aa in seq if aa in "AVILMFYW")
+        hydro_pct = round((hydro_cnt / length) * 100.0, 1)
+        mw_kda = round((length * 110.0) / 1000.0, 2)
+        ambig_cnt = seq.count("X") + seq.count("*")
+        return length, 0.0, hydro_pct, mw_kda, ambig_cnt
+    else:
+        gc_cnt = sum(1 for b in seq if b in ("G", "C"))
+        gc_pct = round((gc_cnt / length) * 100.0, 1)
+        mw_kda = round((length * 308.0) / 1000.0, 2)
+        ambig_cnt = seq.count("N")
+        return length, gc_pct, 0.0, mw_kda, ambig_cnt
+
+def fetch_live_accession(raw_acc, core_engine, strip_ver=True):
+    clean_base = raw_acc.split(".")[0].strip().upper() if strip_ver else raw_acc.strip().upper()
+    lookup_key = raw_acc.split(".")[0].strip().upper()
+
+    # 1. Local Cache Lookup
+    if lookup_key in DEMO_SEQUENCE_CACHE:
+        item = DEMO_SEQUENCE_CACHE[lookup_key].copy()
+        if "Protein" in core_engine and "Nucleotide" in item["mol"]:
+            item["seq"] = translate_dna_to_protein(item["seq"])
+            item["mol"] = "Protein (Translated CDS)"
+            item["desc"] = f"{item['gene']} translated peptide sequence"
+        return {"status": "SUCCESS", "resolved": item["resolved"], "db": item["db"], "gene": item["gene"], "mol": item["mol"], "desc": item["desc"], "seq": item["seq"]}
+
+    # 2. Live Ensembl REST API Query for ENS* IDs
+    if clean_base.startswith("ENS"):
+        ens_type = "cds" if "CDS" in core_engine else ("genomic" if "Genomic" in core_engine else ("protein" if ("Protein" in core_engine or clean_base.startswith("ENSP")) else "cdna"))
         try:
-            r = requests.get(f"https://rest.ensembl.org/sequence/id/{clean_acc}?type={ens_type}", headers={"Content-Type": "application/json"}, timeout=10)
+            url = f"https://rest.ensembl.org/sequence/id/{clean_base}?type={ens_type}"
+            r = requests.get(url, headers={"Content-Type": "application/json"}, timeout=12)
             if r.status_code == 200:
                 data = r.json()
-                return {"status": "SUCCESS", "seq": data.get("seq", ""), "desc": data.get("desc", "Ensembl Hit"), "mol": "Protein" if ens_type=="protein" else "Nucleotide"}
+                mol_label = "Protein (Amino Acid)" if (ens_type == "protein" or clean_base.startswith("ENSP")) else f"Nucleotide ({ens_type.upper()})"
+                return {"status": "SUCCESS", "resolved": data.get("id", raw_acc), "db": "Ensembl (REST API)", "gene": clean_base, "mol": mol_label, "desc": data.get("desc", f"Ensembl {ens_type.upper()}"), "seq": data.get("seq", "")}
         except: pass
+
+    # 3. Live NCBI Entrez E-Utilities Query for RefSeq / GenBank IDs
     else:
-        db_name = "protein" if ("Protein" in core_engine or clean_acc.startswith(("NP_", "XP_"))) else "nuccore"
+        is_prot = clean_base.startswith(("NP_", "XP_", "YP_", "WP_")) or ("Protein" in core_engine and not clean_base.startswith(("NM_", "NR_", "NC_")))
+        db_name = "protein" if is_prot else "nuccore"
         try:
-            r = requests.get(f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db={db_name}&id={clean_acc}&rettype=fasta&retmode=text", timeout=10)
+            url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db={db_name}&id={raw_acc.strip()}&rettype=fasta&retmode=text"
+            r = requests.get(url, timeout=12)
             if r.status_code == 200 and r.text.strip().startswith(">"):
                 lines = r.text.strip().splitlines()
-                return {"status": "SUCCESS", "seq": "".join(l for l in lines[1:] if not l.startswith(">")), "desc": " ".join(lines[0].split()[1:]), "mol": "Protein" if db_name=="protein" else "Nucleotide"}
+                hdr = lines[0][1:].strip()
+                seq_str = "".join(l.strip() for l in lines[1:] if not l.startswith(">"))
+                resolved_id = hdr.split()[0] if hdr else raw_acc
+                desc_str = " ".join(hdr.split()[1:]) if len(hdr.split()) > 1 else hdr
+                
+                if "Protein" in core_engine and not is_prot:
+                    seq_str = translate_dna_to_protein(seq_str)
+                    is_prot = True
+                    
+                return {"status": "SUCCESS", "resolved": resolved_id, "db": f"NCBI Entrez ({db_name})", "gene": "RefSeq_Gene", "mol": "Protein (Amino Acid)" if is_prot else "Nucleotide", "desc": desc_str, "seq": seq_str}
         except: pass
-        
-    return {"status": "FAILED", "seq": "", "desc": "Not Found", "mol": "N/A"}
+
+    return {"status": "UNRESOLVED / INVALID ID", "resolved": "Unmapped", "db": "Not Found", "gene": "N/A", "mol": "N/A", "desc": "Accession not found", "seq": ""}
 
 # ==========================================
-# 5. INPUT & CONFIGURATION
+# 4. FILE UPLOAD, PASTE BOX OR DEMO DATA
 # ==========================================
-col_up, col_sample = st.columns([3, 1])
+col_up, col_demo = st.columns([3, 1])
 with col_up:
-    uploaded_file = st.file_uploader("Upload Accession List (.csv, .txt, .tsv)", type=["csv", "txt", "tsv"], on_change=reset_on_mode_change_t5)
-with col_sample:
+    uploaded_file = st.file_uploader(
+        "Upload Accession List Table (.csv, .txt, or .tsv)",
+        type=["csv", "txt", "tsv"],
+        on_change=reset_on_mode_change_t5
+    )
+with col_demo:
     st.write("")
     st.write("")
-    use_sample = st.checkbox("🧪 Load Demo NCBI Dataset", value=(uploaded_file is None), on_change=reset_on_mode_change_t5)
+    use_sample = st.checkbox("🧪 Load Demo NCBI & Ensembl Accessions", value=(uploaded_file is None), on_change=reset_on_mode_change_t5)
+
+paste_ids = st.text_area(
+    "Or paste NCBI / Ensembl Accession IDs directly (one per line or comma-separated):",
+    height=85,
+    placeholder="NM_000546.6\nENST00000269305.9\nNP_000537.3",
+    on_change=reset_on_mode_change_t5
+)
 
 df_input = None
 if uploaded_file is not None:
     try:
-        df_input = pd.read_csv(uploaded_file, sep=None, engine="python")
+        fname = uploaded_file.name.lower()
+        if fname.endswith(".txt") or fname.endswith(".tsv"):
+            df_input = pd.read_csv(uploaded_file, sep=None, engine="python")
+        else:
+            df_input = pd.read_csv(uploaded_file)
     except Exception as e:
         st.error(f"Error reading file: {e}")
+elif paste_ids.strip():
+    raw_tokens = [tok.strip() for line in paste_ids.splitlines() for tok in line.split(",") if tok.strip()]
+    df_input = pd.DataFrame({"Accession_ID": raw_tokens})
 elif use_sample:
-    df_input = pd.DataFrame({"Accession_ID": ["NM_000546.6", "NM_007294.4", "ENSG00000133703", "INVALID_99"]})
+    df_input = DEMO_ACCESSION_DF.copy()
 
+# ==========================================
+# 5. CONFIGURE RETRIEVAL ENGINE & PIPELINE
+# ==========================================
 if df_input is not None and not df_input.empty:
-    st.markdown("### ⚙️ Pipeline Configuration")
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        acc_col = st.selectbox("1. Accession ID Column:", df_input.columns, index=0)
-        core_engine = st.selectbox("2. Core Retrieval Engine (Locks on change):", [
-            "Hybrid Auto-Detect (NCBI + Ensembl)",
-            "NCBI RefSeq (Nucleotide mRNA/cDNA)",
-            "Ensembl Transcript (CDS / mRNA)",
-            "Protein / Peptide Sequences Only"
-        ], on_change=reset_on_mode_change_t5)
-        
-    with col2:
-        organism = st.selectbox("3. Model Organism (Locks on change):", [
-            "Homo sapiens (Human)", 
-            "Mus musculus (Mouse)", 
-            "Danio rerio (Zebrafish)", 
-            "Universal / Cross-Species"
-        ], on_change=reset_on_mode_change_t5)
-        header_style = st.selectbox("4. FASTA Header Style (Free to change):", ["Standard Annotated", "Minimal (ID Only)"])
+    with st.expander(f"👁️ Loaded Accession Input Preview ({len(df_input)} Accessions Ready)", expanded=False):
+        st.dataframe(df_input.head(5), use_container_width=True)
 
-    with col3:
-        wrap_width = st.selectbox("5. Sequence Line Wrap (Free to change):", [60, 80, 0], format_func=lambda x: "Single-Line (No wrap)" if x==0 else f"{x} bp/line")
+    st.markdown("### ⚙️ Configure Sequence Retrieval Engine & FASTA Formatting")
+
+    core_engine = st.selectbox(
+        "1. Core Sequence Retrieval Engine (Switching engine starts a new pipeline run):",
+        [
+            "Hybrid Auto-Detect (Simultaneous NCBI RefSeq + Ensembl Transcript/Protein)",
+            "Ensembl Transcript — Spliced cDNA / mRNA Sequence (Nucleotide)",
+            "Ensembl Coding Sequence — CDS Only (ATG to Stop Codon)",
+            "Ensembl Genomic — Full Gene Region Sequence (Exons + Introns)",
+            "NCBI RefSeq & GenBank — Nucleotide Sequences (NM_, NR_, NC_, XM_)",
+            "Protein / Peptide Sequences Only (NCBI NP_/XP_, Ensembl ENSP & CDS Translation)"
+        ],
+        on_change=reset_on_mode_change_t5
+    )
+
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.markdown("**2. Source Column & Deduplication**")
+        acc_col = st.selectbox("Select Accession ID Column:", list(df_input.columns), index=0)
+        strip_ver = st.checkbox("Auto-Resolve Version Suffixes (e.g. .14)", value=True)
+        dedup_ids = st.checkbox("Deduplicate Identical Accession IDs", value=True)
+        min_seq_len = st.number_input("Minimum Sequence Length Cutoff (bp / aa):", min_value=0, max_value=10000, value=20, step=10)
+
+    with c2:
+        st.markdown("**3. Custom FASTA Header & Line Wrapping**")
+        header_style = st.selectbox(
+            "FASTA Header Format:",
+            [
+                "Standard Annotated (>Accession | Gene | Molecule | Length)",
+                "Phylogenetics / Alignment Clean (>Gene_Accession)",
+                "Minimal Accession Only (>Accession)"
+            ]
+        )
+        wrap_choice = st.selectbox(
+            "FASTA Sequence Line Wrap Width:",
+            [
+                "60 bp/aa per line (NCBI Standard)",
+                "80 bp/aa per line (Ensembl Standard)",
+                "Single-Line Unwrapped (Best for Bash / grep / awk)"
+            ]
+        )
+
+    with c3:
+        st.markdown("**4. Strand Orientation & Excel Guard**")
+        strand_choice = st.selectbox(
+            "Nucleotide Strand Orientation:",
+            [
+                "5' ➔ 3' Forward Sense Strand (Default)",
+                "3' ➔ 5' Reverse Complement Strand (Nucleotide Only)"
+            ]
+        )
         excel_guard = st.checkbox("🛡️ Enable Excel Gene-Name Guard (Protects MARCH1 / SEPT2)", value=False)
 
-    current_file_sig = uploaded_file.name if uploaded_file else "demo_data"
-    current_mode_sig = f"{current_file_sig}|{core_engine}|{organism}"
+    current_file_sig = uploaded_file.name if uploaded_file is not None else ("pasted" if paste_ids.strip() else "demo_acc")
+    current_mode_sig = f"{current_file_sig}|{core_engine}"
 
     # ==========================================
-    # 6. RUN EXECUTION
+    # 6. RUN BULK FASTA FETCHER
     # ==========================================
     if st.button("🚀 Fetch & Compile Bulk FASTA Sequences"):
-        if st.session_state["locked_mode_t5"] is not None and st.session_state["locked_mode_t5"] != current_mode_sig:
+        if st.session_state.get("locked_mode_t5") is not None and st.session_state.get("locked_mode_t5") != current_mode_sig:
             st.session_state["is_unlocked_t5"] = False
         st.session_state["locked_mode_t5"] = current_mode_sig
 
-        raw_ids = df_input[acc_col].dropna().astype(str).str.strip().tolist()
-        # Deduplicate
-        raw_ids = list(dict.fromkeys([x for x in raw_ids if x.lower() not in ["nan", "none", ""]]))
+        with st.spinner("Connecting to NCBI Entrez & Ensembl REST endpoints, screening ORF/restriction sites, and compiling FASTA blocks..."):
+            wrap_width = 60 if "60" in wrap_choice else (80 if "80" in wrap_choice else 0)
+            do_revcomp = "Reverse Complement" in strand_choice
 
-        progress_bar = st.progress(0)
-        status_text = st.empty()
-        
-        compiled_rows = []
-        fasta_blocks = []
-        failed_count = 0
-        total_len = 0
-        
-        for i, acc in enumerate(raw_ids):
-            status_text.text(f"Fetching Sequence {i+1} of {len(raw_ids)}: {acc}")
-            progress_bar.progress((i + 1) / len(raw_ids))
-            
-            # Rate limiting for live calls to prevent freezing/blocking
-            if acc.split('.')[0] not in DEMO_CACHE:
-                time.sleep(0.35)
+            compiled_rows = []
+            failed_rows = []
+            fasta_blocks = []
 
-            res = fetch_live_accession(acc, core_engine)
-            
-            if res["status"] == "SUCCESS" and res["seq"]:
-                seq = res["seq"].upper()
-                is_prot = "Protein" in res["mol"]
-                seq_len = len(seq)
-                total_len += seq_len
-                
-                # Biophysics
-                if is_prot:
-                    hydro = round(sum(1 for aa in seq if aa in "AVILMFYW") / max(1, seq_len) * 100, 1)
-                    gc, mw = 0.0, round((seq_len * 110.0) / 1000.0, 2)
-                    comp_tag = f"Hydrophobic:{hydro}%"
-                else:
-                    gc = round(sum(1 for b in seq if b in "GC") / max(1, seq_len) * 100, 1)
-                    hydro, mw = 0.0, round((seq_len * 308.0) / 1000.0, 2)
-                    comp_tag = f"GC:{gc}%"
-                    
-                # Restriction Sites
-                cuts = [enz for enz, site in {"EcoRI":"GAATTC", "BamHI":"GGATCC", "BsaI":"GGTCTC"}.items() if site in seq or rev_comp_dna(site) in seq]
-                cut_str = "0 Cuts (Cloning-Safe)" if not cuts else f"Cuts: {', '.join(cuts)}"
-
-                # Header & Fasta
-                hdr = f">{acc}" if header_style == "Minimal (ID Only)" else f">{acc} | {res['desc']} | Len:{seq_len} | {comp_tag}"
-                wrapped_seq = "\n".join([seq[j:j+wrap_width] for j in range(0, len(seq), wrap_width)]) if wrap_width > 0 else seq
-                fasta_blocks.append(f"{hdr}\n{wrapped_seq}")
-                
-                gene_disp = f'="{acc}"' if excel_guard else acc
-                
-                compiled_rows.append({
-                    "Accession": gene_disp, "Fetch_Status": "Success", "Molecule_Type": res["mol"],
-                    "Sequence_Length": seq_len, "GC_or_Hydro_Pct": comp_tag, "Molecular_Weight_kDa": mw,
-                    "Cloning_Restriction_Sites": cut_str, "Description": res["desc"]
-                })
+            if acc_col in df_input.columns:
+                raw_list = [str(x).strip() for x in df_input[acc_col].dropna() if str(x).strip()]
             else:
-                failed_count += 1
-                compiled_rows.append({"Accession": acc, "Fetch_Status": "Failed", "Molecule_Type": "N/A", "Sequence_Length": 0, "GC_or_Hydro_Pct": "N/A", "Molecular_Weight_kDa": 0, "Cloning_Restriction_Sites": "N/A", "Description": "Not Found"})
+                raw_list = [str(x).strip() for x in df_input.iloc[:, 0].dropna() if str(x).strip()]
 
-        status_text.empty()
-        progress_bar.empty()
-        
-        st.session_state["fasta_df_t5"] = pd.DataFrame(compiled_rows)
-        st.session_state["fasta_text_t5"] = "\n\n".join(fasta_blocks)
-        st.session_state["stats_t5"] = {
-            "queried": len(raw_ids),
-            "success": len(fasta_blocks),
-            "failed": failed_count,
-            "total_len": total_len,
-            "engine": core_engine,
-            "org": organism
-        }
+            if dedup_ids:
+                raw_list = list(dict.fromkeys(raw_list))
+
+            total_items = len(raw_list)
+            prog_bar = st.progress(0)
+            prog_text = st.empty()
+
+            for i, q_acc in enumerate(raw_list):
+                q_acc_str = str(q_acc).strip()
+                
+                prog_text.text(f"Fetching Sequence {i+1} of {total_items}: {q_acc_str}")
+                prog_bar.progress((i + 1) / total_items)
+                
+                # Prevent rate-limit block on live calls
+                if q_acc_str.split(".")[0] not in DEMO_SEQUENCE_CACHE:
+                    time.sleep(0.35)
+                
+                if not q_acc_str or q_acc_str.lower() in ["nan", "none", "null"]:
+                    continue
+
+                res = fetch_live_accession(q_acc_str, core_engine, strip_ver)
+                
+                if not res or res.get("status") != "SUCCESS" or not res.get("seq"):
+                    failed_rows.append({
+                        "Query_Accession_ID": q_acc_str,
+                        "Fetch_Status": res.get("status", "FAILED") if res else "FAILED",
+                        "Diagnostic_Note": res.get("desc", "No sequence returned from repository") if res else "Unknown Fetch Error"
+                    })
+                    continue
+
+                seq_str = str(res["seq"]).upper().strip()
+                mol_type = str(res.get("mol", ""))
+                is_prot = "Protein" in mol_type or "peptide" in mol_type.lower()
+
+                if any(k in core_engine for k in ["cDNA", "CDS Only", "Genomic", "Nucleotide Sequences"]) and is_prot:
+                    continue
+
+                if do_revcomp and not is_prot:
+                    seq_str = rev_comp_dna(seq_str)
+                    strand_tag = "Reverse_Complement (-)"
+                else:
+                    strand_tag = "Forward_Sense (+)" if not is_prot else "Peptide (N->C)"
+
+                seq_len, gc_pct, hydro_pct, mw_kda, ambig_cnt = calc_seq_biophysics(seq_str, is_prot)
+                if seq_len < min_seq_len:
+                    continue
+
+                orf_status, restr_sites, pred_pi = check_orf_and_restriction(seq_str, is_prot)
+                unit_str = "aa" if is_prot else "bp"
+                comp_tag = f"Hydrophobic:{hydro_pct}%" if is_prot else f"GC:{gc_pct}%"
+
+                resolved_acc = res.get("resolved", res.get("acc", q_acc_str))
+                gene_symbol = res.get("gene", "Unknown")
+                db_source = res.get("db", "NCBI/Ensembl")
+
+                if "Phylogenetics" in header_style:
+                    clean_g = gene_symbol.replace(" ", "_")
+                    clean_r = resolved_acc.replace(".", "_")
+                    fasta_hdr = f">{clean_g}_{clean_r}"
+                elif "Minimal" in header_style:
+                    fasta_hdr = f">{resolved_acc}"
+                else:
+                    fasta_hdr = f">{resolved_acc} | Gene:{gene_symbol} | {mol_type} | Length:{seq_len}{unit_str} | {comp_tag} | MW:{mw_kda}kDa | {res.get('desc', '')}"
+
+                if wrap_width > 0:
+                    wrapped_seq = "\n".join([seq_str[j:j+wrap_width] for j in range(0, len(seq_str), wrap_width)])
+                else:
+                    wrapped_seq = seq_str
+
+                fasta_blocks.append(f"{fasta_hdr}\n{wrapped_seq}")
+                disp_gene = f'="{gene_symbol}"' if excel_guard else gene_symbol
+
+                compiled_rows.append({
+                    "Query_Accession_ID": q_acc_str,
+                    "Resolved_Accession": resolved_acc,
+                    "Database_Source": db_source,
+                    "Gene_Symbol": disp_gene,
+                    "Molecule_Type": mol_type,
+                    "Strand_Orientation": strand_tag,
+                    "Sequence_Length (bp/aa)": seq_len,
+                    "GC_Content (%)": gc_pct,
+                    "Hydrophobic_AA (%)": hydro_pct,
+                    "Molecular_Weight (kDa)": mw_kda,
+                    "Predicted_Protein_pI": pred_pi if is_prot else "N/A (DNA/RNA)",
+                    "ORF_&_Codon_Status": orf_status,
+                    "Internal_Restriction_Sites": restr_sites,
+                    "Ambiguous_Count (N/X)": ambig_cnt,
+                    "Formatted_FASTA_Header": fasta_hdr,
+                    "Sequence_5Prime_Preview": f"{seq_str[:42]}...",
+                    "Full_Sequence": seq_str
+                })
+
+            prog_text.empty()
+            prog_bar.empty()
+
+            out_df = pd.DataFrame(compiled_rows)
+            fail_df = pd.DataFrame(failed_rows) if failed_rows else pd.DataFrame([{"Query_Accession_ID": "None", "Fetch_Status": "100% Accessions Resolved Successfully", "Diagnostic_Note": "No failed IDs"}])
+            full_fasta_str = "\n\n".join(fasta_blocks)
+
+            total_bases = int(out_df["Sequence_Length (bp/aa)"].sum()) if not out_df.empty else 0
+            mean_len = int(out_df["Sequence_Length (bp/aa)"].mean()) if not out_df.empty else 0
+
+            st.session_state["fasta_df_t5"] = out_df
+            st.session_state["fasta_text_t5"] = full_fasta_str
+            st.session_state["failed_df_t5"] = fail_df
+            st.session_state["stats_t5"] = {
+                "total_queried": len(raw_list),
+                "fetched": len(out_df),
+                "failed": len(failed_rows),
+                "total_len": total_bases,
+                "mean_len": mean_len,
+                "engine": core_engine
+            }
 
 # ==========================================
-# 7. RESULTS & PAYWALL DISPLAY
+# 7. DISPLAY TABULAR RESULTS, PAYWALL & EXPORTS
 # ==========================================
 if "fasta_df_t5" in st.session_state:
     res_df = st.session_state["fasta_df_t5"]
     fasta_str = st.session_state["fasta_text_t5"]
+    fail_df = st.session_state["failed_df_t5"]
     stats = st.session_state["stats_t5"]
 
     st.markdown("---")
     st.markdown("### 📊 Bulk Sequence Retrieval Summary & FASTA Preview")
 
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Accessions Queried", f"{stats['queried']:,}")
-    m2.metric("Successfully Compiled", f"{stats['success']:,}")
-    m3.metric("Failed / Unresolved", f"{stats['failed']:,}")
-    m4.metric("Total Base/Residue Volume", f"{stats['total_len']:,}")
+    m1.metric("Accessions Queried", f"{stats['total_queried']:,}")
+    m2.metric("Sequences Compiled", f"{stats['fetched']:,}")
+    m3.metric("Total Bases / Residues", f"{stats['total_len']:,}")
+    m4.metric("Mean Sequence Length", f"{stats['mean_len']:,} bp/aa")
 
-    if stats['success'] == 0:
-        st.error("❌ 0 sequences were retrieved. Please ensure you selected the correct Accession ID Column and your IDs match the selected database.")
-        st.dataframe(res_df, use_container_width=True)
-
-    if stats['success'] > 0:
+    if stats['fetched'] == 0:
+        st.error("❌ 0 sequences were retrieved. This usually happens if the wrong Accession ID Column was selected.")
+    else:
         if st.session_state["is_unlocked_t5"]:
-            st.success(f"✅ **Payment Verified for [{stats['engine']} | {stats['org']}]!** Complete multi-FASTA file and biophysical metadata tables unlocked.")
+            st.success(f"✅ **Payment Verified for [{stats['engine']}]!** Complete multi-FASTA file, ORF/restriction cloning audit, and biophysical metadata tables unlocked.")
             st.dataframe(res_df, use_container_width=True)
 
-            d1, d2 = st.columns(2)
-            d1.download_button(
-                "⬇️ 1. Download Compiled Multi-FASTA (.fasta)",
-                data=fasta_str.encode("utf-8-sig"),
-                file_name="GenomeTech_Bulk_Sequences.fasta",
-                mime="text/plain"
-            )
-            d2.download_button(
-                "⬇️ 2. Download Biophysical & Cloning QC Table (.csv)",
-                data=res_df.to_csv(index=False).encode("utf-8-sig"),
-                file_name="GenomeTech_Sequence_QC.csv",
-                mime="text/csv"
-            )
-            
-            st.markdown("#### 📦 What you get in these results:")
-            st.info("The `.fasta` file contains your pristine sequences perfectly wrapped and ready for alignment, cloning, or BLAST. The `.csv` file contains verified molecular weights, GC percentages, and fetch diagnostics, natively readable on Windows & Mac.")
+            with st.expander("📄 View Compiled Multi-FASTA Text Output", expanded=False):
+                st.code(fasta_str[:3000] + ("\n... [Truncated in preview, download full file below]" if len(fasta_str) > 3000 else ""), language="text")
 
+            d1, d2, d3 = st.columns(3)
+            with d1:
+                st.download_button(
+                    "⬇️ 1. Download Compiled Multi-FASTA (.fasta)",
+                    data=fasta_str.encode("utf-8-sig"),
+                    file_name="GenomeTech_Bulk_Sequences.fasta",
+                    mime="text/plain"
+                )
+            with d2:
+                st.download_button(
+                    "⬇️ 2. Sequence Biophysical & Cloning QC Table (.csv)",
+                    data=res_df.to_csv(index=False).encode("utf-8-sig"),
+                    file_name="GenomeTech_Sequence_Metadata_Report.csv",
+                    mime="text/csv"
+                )
+            with d3:
+                st.download_button(
+                    "⬇️ 3. Unresolved / Retired IDs Audit Log (.csv)",
+                    data=fail_df.to_csv(index=False).encode("utf-8-sig"),
+                    file_name="GenomeTech_Unresolved_Accessions_Audit.csv",
+                    mime="text/csv"
+                )
         else:
-            st.markdown("**Live Preview (First 3 Retrieved Rows):**")
+            st.markdown("**Live Preview (First 3 Retrieved Sequences, ORF Status & Restriction Screen):**")
             st.dataframe(res_df.head(3), use_container_width=True)
 
-            st.markdown("**FASTA Format Preview:**")
-            st.code(fasta_str.split("\n\n")[0], language="text")
+            preview_blocks = "\n\n".join(fasta_str.split("\n\n")[:2])
+            st.markdown("**Live Multi-FASTA Format Preview (First 2 Entries):**")
+            st.code(preview_blocks, language="text")
 
             blurred_preview = res_df.iloc[3:10] if len(res_df) > 3 else res_df
             st.markdown('<div class="blurred-table">', unsafe_allow_html=True)
@@ -430,12 +614,12 @@ if "fasta_df_t5" in st.session_state:
             razorpay_link = "https://rzp.io/rzp/UVDck3w"
             st.markdown(f"""
             <div class="paywall-overlay">
-                <h3 style="color: #e9d5ff !important; margin-top: 0;">🔒 Unlock Full {stats['success']:,}-Sequence Multi-FASTA Output</h3>
+                <h3 style="color: #e9d5ff !important; margin-top: 0;">🔒 Unlock Full {stats['fetched']:,}-Sequence Multi-FASTA & Cloning QC CSV</h3>
                 <p style="color: #cbd5e1 !important; font-size: 0.95rem;">
-                    Your sequences are compiled and verified above. Complete the checkout to immediately download the full <code>.fasta</code> file and the Biophysical QC <code>.csv</code> table.
+                    Your first 3 sequences are verified above. Complete the $40 OmicsExpress checkout to immediately download the compiled <code>.fasta</code> file, the Biophysical & Restriction Site Metadata CSV, and the Unresolved Accession Audit log.
                 </p>
-                <div style="background:rgba(56,189,248,0.14);border:1px solid rgba(56,189,248,0.45);color:#e0f2fe !important;padding:8px 14px;border-radius:8px;font-size:0.88rem;font-weight:600;margin:10px auto 6px auto;max-width:520px;">🔥 <span style="color:#38bdf8 !important;font-weight:800;">FOUNDING LAB LAUNCH OFFER:</span> <s style="color:#94a3b8 !important;">$100 USD</s> <b style="color:#ffffff !important;">$40 USD</b> — Special Early-Access Rate</div><a href="{razorpay_link}" target="_blank" style="background: linear-gradient(90deg, #9333ea 0%, #2563eb 100%); color: white !important; padding: 14px 32px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 1.05rem; display: inline-block; margin: 12px 0; border: 1px solid #c084fc; box-shadow: 0 4px 20px rgba(147, 51, 234, 0.5);">
-                    💳 Pay $40 via Razorpay to Unlock .FASTA & .CSV
+                <div style="background:rgba(56,189,248,0.14);border:1px solid rgba(56,189,248,0.45);color:#e0f2fe !important;padding:8px 14px;border-radius:8px;font-size:0.88rem;font-weight:600;margin:10px auto 6px auto;max-width:520px;">🔥 <span style="color:#38bdf8 !important;font-weight:800;">FOUNDING LAB LAUNCH OFFER:</span> <s style="color:#94a3b8 !important;">$100 USD</s> <b style="color:#ffffff !important;">$40 USD</b> — Special Early-Access Rate for Our First 20 Research Clients</div><a href="{razorpay_link}" target="_blank" style="background: linear-gradient(90deg, #9333ea 0%, #2563eb 100%); color: white !important; padding: 14px 32px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 1.05rem; display: inline-block; margin: 12px 0; border: 1px solid #c084fc; box-shadow: 0 4px 20px rgba(147, 51, 234, 0.5);">
+                    💳 Pay $40 via Razorpay to Unlock .FASTA & CSVs
                 </a>
             </div>
             """, unsafe_allow_html=True)
@@ -453,23 +637,32 @@ if "fasta_df_t5" in st.session_state:
                     else:
                         st.error("Invalid Payment ID. Please paste the 'pay_...' ID shown on your Razorpay payment confirmation screen.")
 
-# ==========================================
-# 8. REMARKS, REVIEWS & TOOL REQUESTS
-# ==========================================
-st.markdown("---")
-st.markdown("### 📝 Remarks, Reviews & New Tool Requests")
-st.write("We build custom bioinformatics pipelines. Have feedback on this FASTA fetcher or need a new tool built? Submit it below. Fully supported on Windows & Mac.")
+    # ==========================================
+    # STEP 8: AUTOMATED REMARKS & DIRECT EMAIL
+    # ==========================================
+    st.markdown("---")
+    st.markdown("### 📝 Automated Sequence Retrieval Remarks & Direct Support")
 
-with st.form("feedback_form"):
-    req_name = st.text_input("Your Name / Institution:")
-    req_msg = st.text_area("Your Review, Remark, or Tool Request:")
-    submit_btn = st.form_submit_button("Submit Form")
-    
-    if submit_btn:
-        subject = urllib.parse.quote(f"OmicsExpress Feedback - Tool #5 (From: {req_name})")
-        body = urllib.parse.quote(f"Name/Institution: {req_name}\nTool: Tool #5 - Bulk FASTA Fetcher\n\nMessage/Request:\n{req_msg}")
-        mail_link = f"mailto:bhumikasihare555@gmail.com?subject={subject}&body={body}"
-        
-        st.success("🎉 Thank you for using OmicsExpress! Keep exploring more.")
-        st.markdown(f"**Action Required:** Click the link below to securely pass your request to your default email application (Outlook/Mac Mail/Gmail) to finalize sending.")
-        st.markdown(f'<a href="{mail_link}" style="background: linear-gradient(90deg, #7c3aed 0%, #2563eb 100%); color: white !important; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; margin-top: 10px; border: 1px solid #c084fc;">📧 Open Email App to Send</a>', unsafe_allow_html=True)
+    st.info(
+        f"**Automated Bulk FASTA Diagnostics:**\n"
+        f"* **Retrieval Pipeline:** {stats['engine']}\n"
+        f"* **Compilation Summary:** Successfully retrieved, deduplicated, and formatted **{stats['fetched']:,}** of **{stats['total_queried']:,}** accessions (Total sequence volume: **{stats['total_len']:,} bp/aa**, Mean length: **{stats['mean_len']:,} bp/aa**).\n"
+        f"* **Biophysical & Cloning QC Audit:** Computed numeric GC% / Hydrophobic AA%, molecular weight (kDa), predicted protein pI, start/stop codon ORF integrity, and screened for internal cloning restriction sites (`EcoRI, BamHI, HindIII, NotI, BsaI, BsmBI`)."
+    )
+
+    with st.expander("💬 Send Remarks or Questions Directly to GenomeTech Team (via Email)"):
+        client_email = st.text_input("Your Lab / Institutional Email:")
+        client_remark = st.text_area("Your Remarks or Questions about this Bulk FASTA Run:")
+        if st.button("Prepare Direct Email"):
+            subject = urllib.parse.quote(f"OmicsExpress Tool #5 Remark - {client_email}")
+            body = urllib.parse.quote(
+                f"Client Email: {client_email}\n"
+                f"Tool Used: Tool #5 - Bulk NCBI & Ensembl FASTA Fetcher\n"
+                f"Engine: {stats['engine']}\n"
+                f"Accessions Queried: {stats['total_queried']} (Compiled: {stats['fetched']})\n"
+                f"Total Sequence Volume: {stats['total_len']} bp/aa\n\n"
+                f"Client Remarks:\n{client_remark}"
+            )
+            mailto_url = f"mailto:bhumikasihare555@gmail.com?subject={subject}&body={body}"
+            st.success("✅ Your remark and FASTA diagnostics are ready! Click below to send directly from your email client:")
+            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=bhumikasihare555@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)
