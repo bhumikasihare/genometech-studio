@@ -1,7 +1,9 @@
 import streamlit as st
 import os
 
-# 1. Page Configuration
+# ==========================================
+# 1. PAGE CONFIGURATION
+# ==========================================
 st.set_page_config(
     page_title="OmicsExpress Automated Suite | GenomeTech Studio",
     page_icon="🧬",
@@ -9,7 +11,9 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. Direct-Execution Router (?tool=1 to ?tool=8)
+# ==========================================
+# 2. DIRECT-EXECUTION ROUTER
+# ==========================================
 TOOL_MAP = {
     "1": "pages/tool1_gene_translator.py",
     "2": "pages/tool2_primer_design.py",
@@ -27,13 +31,14 @@ if "tool" in query_params:
     if target_key in TOOL_MAP:
         target_file = TOOL_MAP[target_key]
         if os.path.exists(target_file):
-            # Execute the tool script directly inside the main app container
             with open(target_file, "r", encoding="utf-8") as f:
                 code_content = f.read()
             exec(code_content, {"__name__": "__main__", "__file__": target_file})
             st.stop()
 
-# 3. Deep Cosmic Indigo & Purple Theme CSS (Launchpad Fallback)
+# ==========================================
+# 3. DEEP COSMIC THEME CSS
+# ==========================================
 st.markdown("""
 <style>
     #MainMenu {visibility: hidden;}
@@ -94,7 +99,14 @@ st.markdown("""
         margin-bottom: 0.8rem;
         min-height: 185px;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
+    .tool-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(124, 58, 237, 0.35);
+        border-color: rgba(168, 85, 247, 0.7);
+    }
+    
     .tool-tag {
         display: inline-block;
         background: rgba(56, 189, 248, 0.15);
@@ -133,6 +145,9 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# ==========================================
+# 4. DASHBOARD LAYOUT
+# ==========================================
 st.markdown("### 🚀 Select an Automated Micro-Tool Pipeline to Launch")
 st.markdown(
     "All 8 tools include **live dataset previews**, **built-in demo datasets**, **cross-platform Windows & macOS Excel compatibility (`UTF-8-BOM`)**, "
