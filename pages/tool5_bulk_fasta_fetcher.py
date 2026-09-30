@@ -486,167 +486,168 @@ elif use_sample:
 
 # ==========================================
 # STEP 3: CONFIGURE CORE RETRIEVAL ENGINE & FORMATTING
-# ==========================================
-if df_input is not None and not df_input.empty:
-    with st.expander(f"👁️ Loaded Accession Input Preview ({len(df_input)} Accessions Ready)", expanded=False):
-        st.dataframe(df_input.head(5), use_container_width=True)
-
-    st.markdown("### ⚙️ Configure Sequence Retrieval Engine & FASTA Formatting")
-
-    # Core Sequence Retrieval Engine (ONLY switching this or uploading a new file resets the paywall!)
-    core_engine = st.selectbox(
-        "1. Core Sequence Retrieval Engine (Switching engine starts a new pipeline run):",
-        [
-            "Hybrid Auto-Detect (Simultaneous NCBI RefSeq + Ensembl Transcript/Protein)",
-            "Ensembl Transcript — Spliced cDNA / mRNA Sequence (Nucleotide)",
-            "Ensembl Coding Sequence — CDS Only (ATG to Stop Codon)",
-            "Ensembl Genomic — Full Gene Region Sequence (Exons + Introns)",
-            "NCBI RefSeq & GenBank — Nucleotide Sequences (NM_, NR_, NC_, XM_)",
-            "Protein / Peptide Sequences Only (NCBI NP_/XP_, Ensembl ENSP & CDS Translation)"
-        ],
-        on_change=reset_on_mode_change_t5
-    )
-
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.markdown("**2. Source Column & Deduplication**")
-        acc_col = st.selectbox("Select Accession ID Column:", list(df_input.columns), index=0)
-        strip_ver = st.checkbox("Auto-Resolve Version Suffixes (e.g. .14)", value=True)
-        dedup_ids = st.checkbox(
-            "Deduplicate Identical Accession IDs",
-            value=True,
-            help="Prevents duplicate FASTA headers that cause BLAST makeblastdb or alignment tools to error out."
-        )
-        min_seq_len = st.number_input("Minimum Sequence Length Cutoff (bp / aa):", min_value=0, max_value=10000, value=10, step=10)
-
-    with c2:
-        st.markdown("**3. Custom FASTA Header & Line Wrapping**")
-        header_style = st.selectbox(
-            "FASTA Header Format:",
-            [
-                "Standard Annotated (>Accession | Gene | Molecule | Length)",
-                "Phylogenetics / Alignment Clean (>Gene_Accession)",
-                "Minimal Accession Only (>Accession)"
-            ]
-        )
-        wrap_choice = st.selectbox(
-            "FASTA Sequence Line Wrap Width:",
-            [
-                "60 bp/aa per line (NCBI Standard)",
-                "80 bp/aa per line (Ensembl Standard)",
-                "Single-Line Unwrapped (Best for Bash / grep / awk)"
-            ]
-        )
-
-    with c3:
-        st.markdown("**4. Strand Orientation & Excel Guard**")
-        strand_choice = st.selectbox(
-            "Nucleotide Strand Orientation:",
-            [
-                "5' ➔ 3' Forward Sense Strand (Default)",
-                "3' ➔ 5' Reverse Complement Strand (Nucleotide Only)"
-            ]
-        )
-        excel_guard = st.checkbox(
-            "🛡️ Enable Excel Gene-Name Guard (Protects MARCH1 / SEPT2)",
-            value=False,
-            help="Wraps gene symbols as explicit Excel strings (=\"GENE\") in the CSV table so Microsoft Excel never converts MARCH1 or SEPT2 into calendar dates."
-        )
-
-    current_file_sig = uploaded_file.name if uploaded_file is not None else ("pasted" if paste_ids.strip() else "demo_acc")
-    current_mode_sig = f"{current_file_sig}|{core_engine}"
-
     # ==========================================
-    # STEP 4: RUN BULK FASTA FETCHER
-    # ==========================================
-    if st.button("🚀 Fetch & Compile Bulk FASTA Sequences"):
-        if st.session_state.get("locked_mode_t5") is not None and st.session_state.get("locked_mode_t5") != current_mode_sig:
-            st.session_state["is_unlocked_t5"] = False
-        st.session_state["locked_mode_t5"] = current_mode_sig
+    if df_input is not None and not df_input.empty:
+        with st.expander(f"👁️ Loaded Accession Input Preview ({len(df_input)} Accessions Ready)", expanded=False):
+            st.dataframe(df_input.head(5), use_container_width=True)
 
-        with st.spinner("Connecting to NCBI Entrez & Ensembl REST endpoints, screening ORF/restriction sites, and compiling FASTA blocks..."):
-            wrap_width = 60 if "60" in wrap_choice else (80 if "80" in wrap_choice else 0)
-            do_revcomp = "Reverse Complement" in strand_choice
+        st.markdown("### ⚙️ Configure Sequence Retrieval Engine & FASTA Formatting")
 
-            compiled_rows = []
-            failed_rows = []
-            fasta_blocks = []
+        # Core Sequence Retrieval Engine (ONLY switching this or uploading a new file resets the paywall!)
+        core_engine = st.selectbox(
+            "1. Core Sequence Retrieval Engine (Switching engine starts a new pipeline run):",
+            [
+                "Hybrid Auto-Detect (Simultaneous NCBI RefSeq + Ensembl Transcript/Protein)",
+                "Ensembl Transcript — Spliced cDNA / mRNA Sequence (Nucleotide)",
+                "Ensembl Coding Sequence — CDS Only (ATG to Stop Codon)",
+                "Ensembl Genomic — Full Gene Region Sequence (Exons + Introns)",
+                "NCBI RefSeq & GenBank — Nucleotide Sequences (NM_, NR_, NC_, XM_)",
+                "Protein / Peptide Sequences Only (NCBI NP_/XP_, Ensembl ENSP & CDS Translation)"
+            ],
+            on_change=reset_on_mode_change_t5
+        )
 
-            # 1. Safely extract and clean accessions into pure strings
-            if acc_col in df_input.columns:
-                raw_list = [str(x).strip() for x in df_input[acc_col].dropna() if str(x).strip()]
-            else:
-                raw_list = [str(x).strip() for x in df_input.iloc[:, 0].dropna() if str(x).strip()]
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            st.markdown("**2. Source Column & Deduplication**")
+            acc_col = st.selectbox("Select Accession ID Column:", list(df_input.columns), index=0)
+            strip_ver = st.checkbox("Auto-Resolve Version Suffixes (e.g. .14)", value=True)
+            dedup_ids = st.checkbox(
+                "Deduplicate Identical Accession IDs",
+                value=True,
+                help="Prevents duplicate FASTA headers that cause BLAST makeblastdb or alignment tools to error out."
+            )
+            min_seq_len = st.number_input("Minimum Sequence Length Cutoff (bp / aa):", min_value=0, max_value=10000, value=10, step=10)
 
-            if dedup_ids:
-                raw_list = list(dict.fromkeys(raw_list))
+        with c2:
+            st.markdown("**3. Custom FASTA Header & Line Wrapping**")
+            header_style = st.selectbox(
+                "FASTA Header Format:",
+                [
+                    "Standard Annotated (>Accession | Gene | Molecule | Length)",
+                    "Phylogenetics / Alignment Clean (>Gene_Accession)",
+                    "Minimal Accession Only (>Accession)"
+                ]
+            )
+            wrap_choice = st.selectbox(
+                "FASTA Sequence Line Wrap Width:",
+                [
+                    "60 bp/aa per line (NCBI Standard)",
+                    "80 bp/aa per line (Ensembl Standard)",
+                    "Single-Line Unwrapped (Best for Bash / grep / awk)"
+                ]
+            )
 
-            for q_acc in raw_list:
-                # Safe string conversion & NaN guard
-                q_acc_str = str(q_acc).strip()
-                if not q_acc_str or q_acc_str.lower() in ["nan", "none", "null"]:
-                    continue
+        with c3:
+            st.markdown("**4. Strand Orientation & Excel Guard**")
+            strand_choice = st.selectbox(
+                "Nucleotide Strand Orientation:",
+                [
+                    "5' ➔ 3' Forward Sense Strand (Default)",
+                    "3' ➔ 5' Reverse Complement Strand (Nucleotide Only)"
+                ]
+            )
+            excel_guard = st.checkbox(
+                "🛡️ Enable Excel Gene-Name Guard (Protects MARCH1 / SEPT2)",
+                value=False,
+                help="Wraps gene symbols as explicit Excel strings (=\"GENE\") in the CSV table so Microsoft Excel never converts MARCH1 or SEPT2 into calendar dates."
+            )
 
-                res = fetch_live_accession(q_acc_str, core_engine, strip_ver)
-                
-                # Check status and sequence safely
-                if not res or res.get("status") != "SUCCESS" or not res.get("seq"):
-                    failed_rows.append({
-                        "Query_Accession_ID": q_acc_str,
-                        "Fetch_Status": res.get("status", "FAILED") if res else "FAILED",
-                        "Diagnostic_Note": res.get("desc", "No sequence returned from repository") if res else "Unknown Fetch Error"
+        current_file_sig = uploaded_file.name if uploaded_file is not None else ("pasted" if paste_ids.strip() else "demo_acc")
+        current_mode_sig = f"{current_file_sig}|{core_engine}"
+
+        # STEP 4: RUN BULK FASTA FETCHER
+        # ==========================================
+        if st.button("🚀 Fetch & Compile Bulk FASTA Sequences"):
+            if st.session_state.get("locked_mode_t5") is not None and st.session_state.get("locked_mode_t5") != current_mode_sig:
+                st.session_state["is_unlocked_t5"] = False
+            st.session_state["locked_mode_t5"] = current_mode_sig
+
+            with st.spinner("Connecting to NCBI Entrez & Ensembl REST endpoints, screening ORF/restriction sites, and compiling FASTA blocks..."):
+                wrap_width = 60 if "60" in wrap_choice else (80 if "80" in wrap_choice else 0)
+                do_revcomp = "Reverse Complement" in strand_choice
+
+                compiled_rows = []
+                failed_rows = []
+                fasta_blocks = []
+
+                # Safely extract accessions (fixes AttributeError: 'float' object has no attribute 'lower')
+                if acc_col in df_input.columns:
+                    raw_list = [str(x).strip() for x in df_input[acc_col].dropna() if str(x).strip()]
+                else:
+                    raw_list = [str(x).strip() for x in df_input.iloc[:, 0].dropna() if str(x).strip()]
+
+                if dedup_ids:
+                    raw_list = list(dict.fromkeys(raw_list))
+
+                for q_acc in raw_list:
+                    q_acc_str = str(q_acc).strip()
+                    if not q_acc_str or q_acc_str.lower() in ["nan", "none", "null"]:
+                        continue
+
+                    res = fetch_live_accession(q_acc_str, core_engine, strip_ver)
+                    
+                    if not res or res.get("status") != "SUCCESS" or not res.get("seq"):
+                        failed_rows.append({
+                            "Query_Accession_ID": q_acc_str,
+                            "Fetch_Status": res.get("status", "FAILED") if res else "FAILED",
+                            "Diagnostic_Note": res.get("desc", "No sequence returned from repository") if res else "Unknown Fetch Error"
+                        })
+                        continue
+
+                    seq_str = str(res["seq"]).upper().strip()
+                    mol_type = str(res.get("mol", ""))
+                    is_prot = "Protein" in mol_type or "peptide" in mol_type.lower()
+
+                    if any(k in core_engine for k in ["cDNA", "CDS Only", "Genomic", "Nucleotide Sequences"]) and is_prot:
+                        continue
+
+                    if do_revcomp and not is_prot:
+                        seq_str = rev_comp_dna(seq_str)
+                        strand_tag = "Reverse_Complement (-)"
+                    else:
+                        strand_tag = "Forward_Sense (+)" if not is_prot else "Peptide (N->C)"
+
+                    seq_len, gc_pct, hydro_pct, mw_kda, ambig_cnt = calc_seq_biophysics(seq_str, is_prot)
+                    if seq_len < min_seq_len:
+                        continue
+
+                    orf_status, restr_sites, pred_pi = check_orf_and_restriction(seq_str, is_prot)
+                    unit_str = "aa" if is_prot else "bp"
+                    comp_tag = f"Hydrophobic:{hydro_pct}%" if is_prot else f"GC:{gc_pct}%"
+
+                    # Properly Indented Custom FASTA Header Logic
+                    if "Phylogenetics" in header_style:
+                        gene_name = res.get("gene", "Gene").replace(" ", "_")
+                        header_def = f">{gene_name}_{res.get('acc', q_acc_str)}"
+                    elif "Minimal" in header_style:
+                        header_def = f">{res.get('acc', q_acc_str)}"
+                    else:
+                        header_def = f">{res.get('acc', q_acc_str)} | {res.get('desc', 'GenomeTech Target')} | Length:{seq_len}{unit_str} | {comp_tag} | {strand_tag}"
+                    
+                    if wrap_width > 0:
+                        formatted_seq = "\n".join([seq_str[i:i+wrap_width] for i in range(0, len(seq_str), wrap_width)])
+                    else:
+                        formatted_seq = seq_str
+
+                    fasta_blocks.append(f"{header_def}\n{formatted_seq}")
+
+                    compiled_rows.append({
+                        "Accession": res.get("acc", q_acc_str),
+                        "Molecule_Type": mol_type,
+                        "Length": f"{seq_len} {unit_str}",
+                        "GC_or_Hydrophobic_Pct": comp_tag,
+                        "Molecular_Weight_kDa": mw_kda,
+                        "Strand": strand_tag,
+                        "ORF_Integrity": orf_status,
+                        "Isoelectric_Point_pI": pred_pi,
+                        "Description": res.get("desc", "")
                     })
-                    continue
 
-                seq_str = str(res["seq"]).upper().strip()
-                mol_type = str(res.get("mol", ""))
-                is_prot = "Protein" in mol_type or "peptide" in mol_type.lower()
-
-                # Filter nucleotide-only modes if a pure protein ID was passed
-                if any(k in core_engine for k in ["cDNA", "CDS Only", "Genomic", "Nucleotide Sequences"]) and is_prot:
-                    continue
-
-                if do_revcomp and not is_prot:
-                    seq_str = rev_comp_dna(seq_str)
-                    strand_tag = "Reverse_Complement (-)"
-                else:
-                    strand_tag = "Forward_Sense (+)" if not is_prot else "Peptide (N->C)"
-
-                seq_len, gc_pct, hydro_pct, mw_kda, ambig_cnt = calc_seq_biophysics(seq_str, is_prot)
-                if seq_len < min_seq_len:
-                    continue
-
-                orf_status, restr_sites, pred_pi = check_orf_and_restriction(seq_str, is_prot)
-                unit_str = "aa" if is_prot else "bp"
-                comp_tag = f"Hydrophobic:{hydro_pct}%" if is_prot else f"GC:{gc_pct}%"
-
-                # Compile structured row
-                header_def = f">{res.get('acc', q_acc_str)} | {res.get('desc', 'GenomeTech Target')} | Length:{seq_len}{unit_str} | {comp_tag} | {strand_tag}"
+                st.session_state["t5_compiled_df"] = pd.DataFrame(compiled_rows)
+                st.session_state["t5_failed_df"] = pd.DataFrame(failed_rows)
+                st.session_state["t5_fasta_text"] = "\n\n".join(fasta_blocks)
                 
-                # Wrap sequence if requested
-                if wrap_width > 0:
-                    formatted_seq = "\n".join([seq_str[i:i+wrap_width] for i in range(0, len(seq_str), wrap_width)])
-                else:
-                    formatted_seq = seq_str
-
-                fasta_blocks.append(f"{header_def}\n{formatted_seq}")
-
-                compiled_rows.append({
-                    "Accession": res.get("acc", q_acc_str),
-                    "Molecule_Type": mol_type,
-                    "Length": f"{seq_len} {unit_str}",
-                    "GC_or_Hydrophobic_Pct": comp_tag,
-                    "Molecular_Weight_kDa": mw_kda,
-                    "Strand": strand_tag,
-                    "ORF_Integrity": orf_status,
-                    "Isoelectric_Point_pI": pred_pi,
-                    "Description": res.get("desc", "")
-                })
-
-            st.session_state["t5_compiled_df"] = pd.DataFrame(compiled_rows)
-            st.session_state["t5_failed_df"] = pd.DataFrame(failed_rows)
-            st.session_state["t5_fasta_text"] = "\n\n".join(fasta_blocks)
-
     # STEP 5: DISPLAY RESULTS & EXPORTS
     # ==========================================
     if "t5_compiled_df" in st.session_state and not st.session_state["t5_compiled_df"].empty:
