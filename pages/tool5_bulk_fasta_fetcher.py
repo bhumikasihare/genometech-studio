@@ -156,22 +156,23 @@ def reset_on_mode_change_t5():
 
 st.markdown("## Bulk NCBI & Ensembl FASTA Sequence Fetcher")
 st.markdown(
-    "Upload or paste a batch of **NCBI RefSeq (`NM_`, `NR_`, `NP_`, `XM_`)** or **Ensembl (`ENSG`, `ENST`, `ENSP`)** accession IDs to "
-    "instantly retrieve, format, and compile full **Nucleotide (cDNA, CDS, Genomic)** or **Protein (Amino Acid)** `.fasta` sequences (up to **5,000 IDs** per run). "
-    "Includes **ORF Start/Stop Codon Verification, Cloning Restriction Site Screening (`EcoRI/BamHI/BsaI`), Isoelectric Point (`pI`), and Molecular Weight (`kDa`)**."
+    "**What we do in this tool:** We utilize Python-based REST API integrations to query the NCBI Entrez and Ensembl databases "
+    "to instantly retrieve, format, and compile full **Nucleotide (cDNA, CDS, Genomic)** or **Protein (Amino Acid)** `.fasta` sequences (limited to **5,000 IDs** per run to protect server stability). "
+    "We also compute biophysical parameters (GC%, MW, pI) and screen for cloning restriction sites.\n\n"
+    "**Files Provided:** A compiled Multi-FASTA text file (`.fasta`) and a Metadata/Quality Control table (`.csv`)."
 )
 
-with st.expander("📋 Accepted Accession Formats & Complete Researcher Columns (.csv, .txt, .tsv)", expanded=True):
+with st.expander("📋 Required File Formats & Complete Researcher Columns (.csv, .txt, .tsv)", expanded=True):
     st.markdown("""
-    * **Supported Accession Databases (Up to 5,000 per run):**
+    * **Accepted Accession Databases (Upload up to 5,000 IDs):**
       1. **Ensembl IDs:** Gene (`ENSG...`), Transcript (`ENST...`), or Protein (`ENSP...`) across Human, Mouse, Rat, Zebrafish, Plant, and Yeast.
       2. **NCBI RefSeq / GenBank IDs:** mRNA/cDNA (`NM_...`, `XM_...`), non-coding RNA (`NR_...`), Genomic (`NC_...`, `NG_...`), or Protein (`NP_...`, `XP_...`).
     * **Complete Wet-Lab & Bioinformatics Columns Included:**
       1. **Numeric Biophysical Columns:** `Sequence_Length (bp/aa)`, `GC_Content (%)`, `Hydrophobic_AA (%)`, `Molecular_Weight (kDa)`, `Predicted_Protein_pI`, and `Ambiguous_Count (N/X)`.
       2. **Cloning & Synthesis QC:** `ORF_&_Codon_Status` (verifies `ATG` start and `TAA/TAG/TGA` stop codons) and `Internal_Restriction_Sites` (screens for `EcoRI, BamHI, HindIII, NotI, BsaI, BsmBI`).
       3. **3 Instant Deliverables:** (1) Compiled Multi-FASTA (`.fasta`), (2) Excel-Sortable Biophysical & Cloning Metadata Table (`.csv`), and (3) Unresolved Accessions Audit Log (`.csv`).
-    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Sequence (`.fasta`) and vector figure (`.svg` / `.html`) outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**).
-    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Sequence Retrieval Engine** and **Model Organism**. Adjusting FASTA header formats, line wrapping, deduplication, or strand orientation within your unlocked mode is free; switching the Core Engine/Organism or uploading a new file starts a new run.
+    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Sequence (`.fasta`) and vector outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**).
+    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Sequence Retrieval Engine** and **Model Organism**. Adjusting FASTA header formats, line wrapping, deduplication, or strand orientation within your unlocked mode is free; switching the Core Engine, Model Organism, or uploading a new file fundamentally changes the dataset and will require a new run license.
     """)
 
 # ==========================================
@@ -188,55 +189,19 @@ CODON_TABLE = {
     "AGT": "S", "AGC": "S", "AGA": "R", "AGG": "R", "GGT": "G", "GGC": "G", "GGA": "G", "GGG": "G"
 }
 
+# Robust caching specifically to ensure your file always instantly processes without API timeouts
 DEMO_CACHE = {
-    "NM_000546": {
-        "resolved": "NM_000546.6", "db": "NCBI RefSeq", "gene": "TP53", "mol": "Nucleotide (cDNA)",
-        "desc": "Tumor protein p53 (TP53), transcript variant 1, mRNA",
-        "seq": "ATGGAGGAGCCGCAGTCAGATCCTAGCGTCGAGCCCCCTCTGAGTCAGGAAACATTTTCAGACCTATGGAAACTACTTCCTGAAAACAACGTTCTGTCCCCCTTGCCGTCCCAAGCAATGGATGATTTGATGCTGTCCCCGGACGATATTGAACAATGGTTCACTGAAGACCCAGGTCCAGATGAAGCTCCCAGAATGCCAGAGGCTGCTCCCCCCGTGGCCCCTGCACCAGCAGCTCCTACACCGGCGGCCCCTGCACCAGCCCCCTCCTGGCCCCTGTCATCTTCTGTCCCTTCCCAGAAAACCTACCAGGGCAGCTACGGTTTCCGTCTGGGCTTCTTGCATTCTGGGACAGCCAAGTCTGTGACTTGCACGTACTCCCCTGCCCTCAACAAGATGTTTTGCCAACTGGCCAAGACCTGCCCTGTGCAGCTGTGGGTTGATTCCACACCCCCGCCCGGCACCCGCGTCCGCGCCATGGCCATCTACAAGCAGTCACATGA"
-    },
-    "NM_007294": {
-        "resolved": "NM_007294.4", "db": "NCBI RefSeq", "gene": "BRCA1", "mol": "Nucleotide (cDNA)",
-        "desc": "BRCA1 DNA repair associated (BRCA1), transcript variant 1, mRNA",
-        "seq": "ATGGATTTATCTGCTCTTCGCGTTGAAGAAGTACAAAATGTCATTAATGCTATGCAGAAAATCTTAGAGTGTCCCATCTGTCTGGAGTTGATCAAGGAACCTGTCTCCACAAAGTGTGACCACATATTTTGCAAATTTTGCATGCTGAAACTTCTCAACCAGAAGAAAGGGCCTTCACAGTGTCCTTTATGTAAGAATGATATAACCAAAAGGAGCCTACAAGAAAGTACGAGATTTAGTCAACTTGTTGAAGAGCTATTGAAAATCATTTGTGCTTTTCAGCTTGACACAGGTTTGGAGTATGCAAACAGCTATAATTTTGCAAAAAAGGAAAATAACTCTCCTGAACATCTAAAAGATGAAGTTTCTATCATCCAAAGTATGGGCTACAGAAACCGTGCCAAAAGACTTCTACAGAGTGAACCCGAAAATCCTTCCTTGCAGGAAACCAGTCTCAGTGTCCAACTCTCTAACCTTGGAACTGTGAGAACTCTGAGGACTAA"
-    },
-    "NM_005228": {
-        "resolved": "NM_005228.5", "db": "NCBI RefSeq", "gene": "EGFR", "mol": "Nucleotide (cDNA)",
-        "desc": "Epidermal growth factor receptor (EGFR), transcript variant 1, mRNA",
-        "seq": "ATGCGACCCTCCGGGACGGCCGGGGCAGCGCTCCTGGCGCTGCTGGCTGCGCTCTGCCCGGCGAGTCGGGCTCTGGAGGAAAAGAAAGTTTGCCAAGGCACGAGTAACAAGCTCACGCAGTTGGGCACTTTTGAAGATCATTTTCTCAGCCTCCAGAGGATGTTCAATAACTGTGAGGTGGTCCTTGGGAATTTGGAAATTACCTATGTGCAGAGGAATTATGATCTTTCCTTCTTAAAGACCATCCAGGAGGTGGCTGGTTATGTCCTCATTGCCCTCAACACAGTGGAGCGAATTCCTTTGGAAAACCTGCAGATCATCAGAGGAAATATGTACTACGAAAATTCCTATGCCTTAGCAGTCTTATCTAACTATGATGCAAATAAAACCGGACTGAAGGAGCTGCCCATGAGAAATTTACAGGAAATCCTGCATGGCGCCGTGCGGTTCAGCAACAACCCTGCCCTGTGCAACGTGGAGAGCATCCAGTGGCGGGACATTAG"
-    },
-    "NM_004333": {
-        "resolved": "NM_004333.6", "db": "NCBI RefSeq", "gene": "BRAF", "mol": "Nucleotide (cDNA)",
-        "desc": "B-Raf proto-oncogene, serine/threonine kinase (BRAF), mRNA",
-        "seq": "ATGGCGGCGCTGAGCGGTGGCGGTGGTGGCGGCGCGGAGCCGGGCCAGGCTCTGTTCAACGGGGACATGGACCCGAGGCCGGCGCCGGCGCCGGCGCCGCGGCCTCTTCGGCTGCGGACCCTGCCCTTGGGAACCCCCGGGAAGCCTACGTGATGGCCAGCGTGGACAACCCCCACGTGTGCCGCCTGCTGGGCATCTGCCTCACCTCCACCGTGCAGCTCATCACGCAGCTCATGCCCTTCGGCTGCCTCCTGGACTATGTCCGGGAACACAAAGACAATATTGGCTCCCAGTACCTGCTCAACTGGTGTGTGCAGATCGCAAAGGGCATGAACTACTTGGAGGACCGTCGCTTGGTGCACCGCGACCTGGCAGCCAGGAACGTACTGGTGA"
-    },
-    "NM_004985": {
-        "resolved": "NM_004985.5", "db": "NCBI RefSeq", "gene": "KRAS", "mol": "Nucleotide (cDNA)",
-        "desc": "KRAS proto-oncogene, GTPase (KRAS), transcript variant a, mRNA",
-        "seq": "ATGACTGAATATAAACTTGTGGTAGTTGGAGCTGGTGGCGTAGGCAAGAGTGCCTTGACGATACAGCTAATTCAGAATCATTTTGTGGACGAATATGATCCAACAATAGAGGATTCCTACAGGAAGCAAGTAGTAATTGATGGAGAAACCTGTCTCTTGGATATTCTCGACACAGCAGGTCAAGAGGAGTACAGTGCAATGAGGGACCAGTACATGAGGACTGGGGAGGGCTTTCTTTGTGTATTTGCCATAAATAATACTAAATCATTTGAAGATATTCACCATTATAGAGAACAAATTAAAAGAGTTAAGGACTCTGAAGATGTACCTATGGTCCTAGTAGGAAATAAATGTGATTTGCCTTCTAGAACAGTAGACACAAAACAGGCTCAGGACTTAGCAAGAAGTTATGGAATTCCTTTTATTGAAACATCAGCAAAGACAAGACAGGGTGTTGATGATGCCTTCTATACATTAGTTCGAGAAATTCGAAAACATAAATAA"
-    },
-    "NM_000314": {
-        "resolved": "NM_000314.8", "db": "NCBI RefSeq", "gene": "PTEN", "mol": "Nucleotide (cDNA)",
-        "desc": "Phosphatase and tensin homolog (PTEN), mRNA",
-        "seq": "ATGACAGCCATCATCAAAGAGATCGTTAGCAGAAACAAAAGGAGATATCAAGAGGATGGATTCGACTTAGACTTGACCTATATTTATCCAAACATTATTGCTATGGGATTTCCTGCAGAAAGACTTGAAGGCGTATACAGGAACAATATTGATGATGTAGTAAGGTTTTTGGATTCAAAGCATAAAAACCATTACAAGATATACAATCTTTGTGCTGAAAGACATTATGACACCGCCAAATTTAACTGCAGAGTTGCACAGTATCCTTTTGAAGACCATAACCCACCACAGCTAGAACTTATCAAACCCTTTTGTGAAGATCTTGACCAATGGCTAAGTGAAGATGACAATCATGTTGCAGCAATTCACTGTAAAGCTGGAAAGGGACGAACTGGTGTAATGATATGTGCATATTTATTACATCGGGGCAAATTTTTAAAGGCACAAGAGGCCCTAGATTTCTATGGGGAAGTAAGGACCAGAGACAAAAAGGGAGTAACTATTCCCAGTCAGAGGCGCTATGTGTATTATTATAGCTACCTGTTG"
-    },
-    "ENST00000269305": {
-        "resolved": "ENST00000269305.9", "db": "Ensembl", "gene": "TP53", "mol": "Nucleotide (CDS)",
-        "desc": "TP53-201 canonical coding sequence",
-        "seq": "ATGGAGGAGCCGCAGTCAGATCCTAGCGTCGAGCCCCCTCTGAGTCAGGAAACATTTTCAGACCTATGGAAACTACTTCCTGAAAACAACGTTCTGTCCCCCTTGCCGTCCCAAGCAATGGATGATTTGATGCTGTCCCCGGACGATATTGAACAATGGTTCACTGAAGACCCAGGTCCAGATGAAGCTCCCAGAATGCCAGAGGCTGCTCCCCCCGTGGCCCCTGCACCAGCAGCTCCTACACCGGCGGCCCCTGCACCAGCCCCCTCCTGGCCCCTGTCATCTTCTGTCCCTTCCCAGAAAACCTACCAGGGCAGCTACGGTTTCCGTCTGGGCTTCTTGCATTCTGGGACAGCCAAGTCTGTGACTTGCACGTACTCCCCTGCCCTCAACAAGATGTTTTGCCAACTGGCCAAGACCTGCCCTGTGCAGCTGTGGGTTGATTCCACACCCCCGCCCGGCACCCGCGTCCGCGCCATGGCCATCTACAAGCAGTCACATGA"
-    },
-    "NP_000537": {
-        "resolved": "NP_000537.3", "db": "NCBI Protein", "gene": "TP53", "mol": "Protein (Amino Acid)",
-        "desc": "Cellular tumor antigen p53 isoform a",
-        "seq": "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDIEQWFTEDPGPDEAPRMPEAAPPVAPAPAAPTPAAPAPAPSWPLSSSVPSQKTYQGSYGFRLGFLHSGTAKSVTCTYSPALNKMFCQLAKTCPVQLWVDSTPPPGTRVRAMAIYKQSQHMTEVVRRCPHHERCSDSDGLAPPQHLIRVEGNLRVEYLDDRNTFRHSVVVPYEPPEVGSDCTTIHYNYMCNSSCMGGMNRRPILTIITLEDSSGNLLGRNSFEVRVCACPGRDRRTEEENLRKKGEPHHELPPGSTKRALPNNTSSSPQPKKKPLDGEYFTLQIRGRERFEMFRELNEALELKDAQAGKEPGGSRAHSSHLKSKKGQSTSRHKKLMFKTEGPDSD"
-    },
-    "NP_009225": {
-        "resolved": "NP_009225.1", "db": "NCBI Protein", "gene": "BRAF", "mol": "Protein (Amino Acid)",
-        "desc": "B-Raf proto-oncogene serine/threonine-protein kinase isoform a",
-        "seq": "MAALSGGGGGGAEPGQALFNGDMEPEAGAGAGAAASSAADPAIPEEVWNIKQMIKLTQEHIEALLDKFGGEHNPPSIYLEAYEEYTSKLDALQQREQQLLESLGNGTDFSVSSSASMDTVTSSSSSSLSVLPSSLSVFQNPTDVARSNPKSPQKPIVRVFLPNKQRTVVPARCGVTVRDSLKKALMMRGLIPECCAVYRIQDGEKKPIGWDTDISWLTGEELHVEVLENVPLTTHNFVRKTFFTLAFCDFCRKLLFQGFRCQTCGYKFHQRCSTEVPLMCVNYDQLDLLFVSKFFEHHPIPQEEASLAETALTSGSSPSAPASDSIGPQILTSPSPSKSIPIPQPFRPADEDHRNQFGQRDRSSSAPNVHINTIEPVNIDDLIRDQGFRGDGGSTTGLSATPPASLPGSLTNVKALQKSPGPQRERKSSSSSEDRNRMKTLGRRDSSDDWEIPDGQITVGQRIGSGSFGTVYKGKWHGDVAVKMLNVTAPTPQQLQAFKNEVGVLRKTRHVNILLFMGYSTKPQLAIVTQWCEGSSLYHHLHIIETKFEMIKLIDIARQTAQGMDYLHAKSIIHRDLKSNNIFLHEDLTVKIGDFGLATVKSRWSGSHQFEQLSGSILWMAPEVIRMQDKNPYSFQSDVYAFGIVLYELMTGQLPYSNINNRDQIIFMVGRGYLSPDLSKVRSNCPKAMKRLMAECLKKKRDERPLFPQILASIELLARSLPKIHRSASEPSLNRAGFQTEDFSLYACASPKTPIQAGGYGAFPVH"
-    }
+    "NM_000546": {"resolved": "NM_000546.6", "db": "NCBI RefSeq", "gene": "TP53", "mol": "Nucleotide (cDNA)", "desc": "Tumor protein p53 (TP53), transcript variant 1, mRNA", "seq": "ATGGAGGAGCCGCAGTCAGATCCTAGCGTCGAGCCCCCTCTGAGTCAGGAAACATTTTCAGACCTATGGAAACTACTTCCTGAAAACAACGTTCTGTCCCCCTTGCCGTCCCAAGCAATGGATGATTTGATGCTGTCCCCGGACGATATTGAACAATGGTTCACTGAAGACCCAGGTCCAGATGAAGCTCCCAGAATGCCAGAGGCTGCTCCCCCCGTGGCCCCTGCACCAGCAGCTCCTACACCGGCGGCCCCTGCACCAGCCCCCTCCTGGCCCCTGTCATCTTCTGTCCCTTCCCAGAAAACCTACCAGGGCAGCTACGGTTTCCGTCTGGGCTTCTTGCATTCTGGGACAGCCAAGTCTGTGACTTGCACGTACTCCCCTGCCCTCAACAAGATGTTTTGCCAACTGGCCAAGACCTGCCCTGTGCAGCTGTGGGTTGATTCCACACCCCCGCCCGGCACCCGCGTCCGCGCCATGGCCATCTACAAGCAGTCACATGA"},
+    "NM_007294": {"resolved": "NM_007294.4", "db": "NCBI RefSeq", "gene": "BRCA1", "mol": "Nucleotide (cDNA)", "desc": "BRCA1 DNA repair associated (BRCA1), transcript variant 1, mRNA", "seq": "ATGGATTTATCTGCTCTTCGCGTTGAAGAAGTACAAAATGTCATTAATGCTATGCAGAAAATCTTAGAGTGTCCCATCTGTCTGGAGTTGATCAAGGAACCTGTCTCCACAAAGTGTGACCACATATTTTGCAAATTTTGCATGCTGAAACTTCTCAACCAGAAGAAAGGGCCTTCACAGTGTCCTTTATGTAAGAATGATATAACCAAAAGGAGCCTACAAGAAAGTACGAGATTTAGTCAACTTGTTGAAGAGCTATTGAAAATCATTTGTGCTTTTCAGCTTGACACAGGTTTGGAGTATGCAAACAGCTATAATTTTGCAAAAAAGGAAAATAACTCTCCTGAACATCTAAAAGATGAAGTTTCTATCATCCAAAGTATGGGCTACAGAAACCGTGCCAAAAGACTTCTACAGAGTGAACCCGAAAATCCTTCCTTGCAGGAAACCAGTCTCAGTGTCCAACTCTCTAACCTTGGAACTGTGAGAACTCTGAGGACTAA"},
+    "NM_005228": {"resolved": "NM_005228.5", "db": "NCBI RefSeq", "gene": "EGFR", "mol": "Nucleotide (cDNA)", "desc": "Epidermal growth factor receptor (EGFR), transcript variant 1, mRNA", "seq": "ATGCGACCCTCCGGGACGGCCGGGGCAGCGCTCCTGGCGCTGCTGGCTGCGCTCTGCCCGGCGAGTCGGGCTCTGGAGGAAAAGAAAGTTTGCCAAGGCACGAGTAACAAGCTCACGCAGTTGGGCACTTTTGAAGATCATTTTCTCAGCCTCCAGAGGATGTTCAATAACTGTGAGGTGGTCCTTGGGAATTTGGAAATTACCTATGTGCAGAGGAATTATGATCTTTCCTTCTTAAAGACCATCCAGGAGGTGGCTGGTTATGTCCTCATTGCCCTCAACACAGTGGAGCGAATTCCTTTGGAAAACCTGCAGATCATCAGAGGAAATATGTACTACGAAAATTCCTATGCCTTAGCAGTCTTATCTAACTATGATGCAAATAAAACCGGACTGAAGGAGCTGCCCATGAGAAATTTACAGGAAATCCTGCATGGCGCCGTGCGGTTCAGCAACAACCCTGCCCTGTGCAACGTGGAGAGCATCCAGTGGCGGGACATTAG"},
+    "NM_004333": {"resolved": "NM_004333.6", "db": "NCBI RefSeq", "gene": "BRAF", "mol": "Nucleotide (cDNA)", "desc": "B-Raf proto-oncogene, serine/threonine kinase (BRAF), mRNA", "seq": "ATGGCGGCGCTGAGCGGTGGCGGTGGTGGCGGCGCGGAGCCGGGCCAGGCTCTGTTCAACGGGGACATGGACCCGAGGCCGGCGCCGGCGCCGGCGCCGCGGCCTCTTCGGCTGCGGACCCTGCCCTTGGGAACCCCCGGGAAGCCTACGTGATGGCCAGCGTGGACAACCCCCACGTGTGCCGCCTGCTGGGCATCTGCCTCACCTCCACCGTGCAGCTCATCACGCAGCTCATGCCCTTCGGCTGCCTCCTGGACTATGTCCGGGAACACAAAGACAATATTGGCTCCCAGTACCTGCTCAACTGGTGTGTGCAGATCGCAAAGGGCATGAACTACTTGGAGGACCGTCGCTTGGTGCACCGCGACCTGGCAGCCAGGAACGTACTGGTGA"},
+    "NM_004985": {"resolved": "NM_004985.5", "db": "NCBI RefSeq", "gene": "KRAS", "mol": "Nucleotide (cDNA)", "desc": "KRAS proto-oncogene, GTPase (KRAS), transcript variant a, mRNA", "seq": "ATGACTGAATATAAACTTGTGGTAGTTGGAGCTGGTGGCGTAGGCAAGAGTGCCTTGACGATACAGCTAATTCAGAATCATTTTGTGGACGAATATGATCCAACAATAGAGGATTCCTACAGGAAGCAAGTAGTAATTGATGGAGAAACCTGTCTCTTGGATATTCTCGACACAGCAGGTCAAGAGGAGTACAGTGCAATGAGGGACCAGTACATGAGGACTGGGGAGGGCTTTCTTTGTGTATTTGCCATAAATAATACTAAATCATTTGAAGATATTCACCATTATAGAGAACAAATTAAAAGAGTTAAGGACTCTGAAGATGTACCTATGGTCCTAGTAGGAAATAAATGTGATTTGCCTTCTAGAACAGTAGACACAAAACAGGCTCAGGACTTAGCAAGAAGTTATGGAATTCCTTTTATTGAAACATCAGCAAAGACAAGACAGGGTGTTGATGATGCCTTCTATACATTAGTTCGAGAAATTCGAAAACATAAATAA"},
+    "NM_000314": {"resolved": "NM_000314.8", "db": "NCBI RefSeq", "gene": "PTEN", "mol": "Nucleotide (cDNA)", "desc": "Phosphatase and tensin homolog (PTEN), mRNA", "seq": "ATGACAGCCATCATCAAAGAGATCGTTAGCAGAAACAAAAGGAGATATCAAGAGGATGGATTCGACTTAGACTTGACCTATATTTATCCAAACATTATTGCTATGGGATTTCCTGCAGAAAGACTTGAAGGCGTATACAGGAACAATATTGATGATGTAGTAAGGTTTTTGGATTCAAAGCATAAAAACCATTACAAGATATACAATCTTTGTGCTGAAAGACATTATGACACCGCCAAATTTAACTGCAGAGTTGCACAGTATCCTTTTGAAGACCATAACCCACCACAGCTAGAACTTATCAAACCCTTTTGTGAAGATCTTGACCAATGGCTAAGTGAAGATGACAATCATGTTGCAGCAATTCACTGTAAAGCTGGAAAGGGACGAACTGGTGTAATGATATGTGCATATTTATTACATCGGGGCAAATTTTTAAAGGCACAAGAGGCCCTAGATTTCTATGGGGAAGTAAGGACCAGAGACAAAAAGGGAGTAACTATTCCCAGTCAGAGGCGCTATGTGTATTATTATAGCTACCTGTTG"},
+    "NP_000537": {"resolved": "NP_000537.3", "db": "NCBI Protein", "gene": "TP53", "mol": "Protein (Amino Acid)", "desc": "Cellular tumor antigen p53 isoform a", "seq": "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDIEQWFTEDPGPDEAPRMPEAAPPVAPAPAAPTPAAPAPAPSWPLSSSVPSQKTYQGSYGFRLGFLHSGTAKSVTCTYSPALNKMFCQLAKTCPVQLWVDSTPPPGTRVRAMAIYKQSQHMTEVVRRCPHHERCSDSDGLAPPQHLIRVEGNLRVEYLDDRNTFRHSVVVPYEPPEVGSDCTTIHYNYMCNSSCMGGMNRRPILTIITLEDSSGNLLGRNSFEVRVCACPGRDRRTEEENLRKKGEPHHELPPGSTKRALPNNTSSSPQPKKKPLDGEYFTLQIRGRERFEMFRELNEALELKDAQAGKEPGGSRAHSSHLKSKKGQSTSRHKKLMFKTEGPDSD"},
+    "NP_009225": {"resolved": "NP_009225.1", "db": "NCBI Protein", "gene": "BRAF", "mol": "Protein (Amino Acid)", "desc": "B-Raf proto-oncogene serine/threonine-protein kinase isoform a", "seq": "MAALSGGGGGGAEPGQALFNGDMEPEAGAGAGAAASSAADPAIPEEVWNIKQMIKLTQEHIEALLDKFGGEHNPPSIYLEAYEEYTSKLDALQQREQQLLESLGNGTDFSVSSSASMDTVTSSSSSSLSVLPSSLSVFQNPTDVARSNPKSPQKPIVRVFLPNKQRTVVPARCGVTVRDSLKKALMMRGLIPECCAVYRIQDGEKKPIGWDTDISWLTGEELHVEVLENVPLTTHNFVRKTFFTLAFCDFCRKLLFQGFRCQTCGYKFHQRCSTEVPLMCVNYDQLDLLFVSKFFEHHPIPQEEASLAETALTSGSSPSAPASDSIGPQILTSPSPSKSIPIPQPFRPADEDHRNQFGQRDRSSSAPNVHINTIEPVNIDDLIRDQGFRGDGGSTTGLSATPPASLPGSLTNVKALQKSPGPQRERKSSSSSEDRNRMKTLGRRDSSDDWEIPDGQITVGQRIGSGSFGTVYKGKWHGDVAVKMLNVTAPTPQQLQAFKNEVGVLRKTRHVNILLFMGYSTKPQLAIVTQWCEGSSLYHHLHIIETKFEMIKLIDIARQTAQGMDYLHAKSIIHRDLKSNNIFLHEDLTVKIGDFGLATVKSRWSGSHQFEQLSGSILWMAPEVIRMQDKNPYSFQSDVYAFGIVLYELMTGQLPYSNINNRDQIIFMVGRGYLSPDLSKVRSNCPKAMKRLMAECLKKKRDERPLFPQILASIELLARSLPKIHRSASEPSLNRAGFQTEDFSLYACASPKTPIQAGGYGAFPVH"}
 }
 
-DEMO_ACCESSION_DF = pd.DataFrame({"Accession_ID": ["NM_000546.6", "NM_007294.4", "NM_005228.5", "ENST00000269305.9", "NP_000537.3"]})
+DEMO_ACCESSION_DF = pd.DataFrame({"Accession_ID": ["NM_000546.6", "NM_007294.4", "NM_005228.5", "NP_000537.3"]})
 
 def rev_comp_dna(seq):
     trans = str.maketrans("ATGCRYSWKMBDHVNatgcryswkmbdhvn", "TACGYRSWMKVHDBNtacgyrswmkvhdbn")
@@ -301,30 +266,29 @@ def fetch_live_accession(raw_acc, core_engine, strip_ver=True):
     # 1. Local Cache Lookup
     if lookup_key in DEMO_CACHE:
         item = DEMO_CACHE[lookup_key].copy()
-        if "Protein" in core_engine and "Nucleotide" in item["mol"]:
+        if core_engine == "Protein / Peptide Sequences Only (NCBI NP_/XP_, Ensembl ENSP & CDS Translation)" and "Nucleotide" in item["mol"]:
             item["seq"] = translate_dna_to_protein(item["seq"])
             item["mol"] = "Protein (Translated CDS)"
             item["desc"] = f"{item['desc']} (Translated)"
         return {"status": "SUCCESS", "resolved": item["resolved"], "db": item["db"], "gene": item["gene"], "mol": item["mol"], "desc": item["desc"], "seq": item["seq"]}
 
-    # 2. Live Ensembl REST API Query for ENS* IDs
+    # 2. Live Ensembl REST API Query
     if clean_base.startswith("ENS"):
         ens_type = "cds" if "CDS" in core_engine else ("genomic" if "Genomic" in core_engine else ("protein" if ("Protein" in core_engine or clean_base.startswith("ENSP")) else "cdna"))
         try:
-            url = f"https://rest.ensembl.org/sequence/id/{clean_base}?type={ens_type}"
-            r = requests.get(url, headers={"Content-Type": "application/json"}, timeout=12)
+            r = requests.get(f"https://rest.ensembl.org/sequence/id/{clean_base}?type={ens_type}", headers={"Content-Type": "application/json"}, timeout=12)
             if r.status_code == 200:
                 data = r.json()
                 mol_label = "Protein (Amino Acid)" if (ens_type == "protein" or clean_base.startswith("ENSP")) else f"Nucleotide ({ens_type.upper()})"
                 return {"status": "SUCCESS", "resolved": data.get("id", raw_acc), "db": "Ensembl (REST API)", "gene": clean_base, "mol": mol_label, "desc": data.get("desc", f"Ensembl {ens_type.upper()}"), "seq": data.get("seq", "")}
         except: pass
 
-    # 3. Live NCBI Entrez E-Utilities Query for RefSeq / GenBank IDs
+    # 3. Live NCBI Entrez Query
     else:
         is_prot = clean_base.startswith(("NP_", "XP_", "YP_", "WP_")) or ("Protein" in core_engine and not clean_base.startswith(("NM_", "NR_", "NC_")))
         db_name = "protein" if is_prot else "nuccore"
         try:
-            url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db={db_name}&id={raw_acc.strip()}&rettype=fasta&retmode=text&tool=OmicsExpress&email=bhumikasihare555@gmail.com"
+            url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db={db_name}&id={raw_acc.strip()}&rettype=fasta&retmode=text"
             r = requests.get(url, timeout=12)
             if r.status_code == 200 and r.text.strip().startswith(">"):
                 lines = r.text.strip().splitlines()
@@ -371,10 +335,24 @@ df_input = None
 if uploaded_file is not None:
     try:
         fname = uploaded_file.name.lower()
-        if fname.endswith(".txt") or fname.endswith(".tsv"):
-            df_input = pd.read_csv(uploaded_file, sep=None, engine="python")
+        if fname.endswith(".tsv"):
+            df_input = pd.read_csv(uploaded_file, sep="\t")
+        elif fname.endswith(".txt"):
+            df_input = pd.read_csv(uploaded_file, sep=r'\t|,', engine='python')
         else:
             df_input = pd.read_csv(uploaded_file)
+            
+        # Fail-safe: Detect if a headerless .txt file was uploaded and pandas grabbed the first ID as the column name
+        if not df_input.empty and str(df_input.columns[0]).upper().startswith(("NM_", "NP_", "ENS", "NC_", "NR_")):
+            uploaded_file.seek(0)
+            if fname.endswith(".tsv"):
+                df_input = pd.read_csv(uploaded_file, sep="\t", header=None)
+            elif fname.endswith(".txt"):
+                df_input = pd.read_csv(uploaded_file, sep=r'\t|,', engine='python', header=None)
+            else:
+                df_input = pd.read_csv(uploaded_file, header=None)
+            df_input.columns = ["Accession_ID"] + [f"Col_{i}" for i in range(1, len(df_input.columns))]
+            
     except Exception as e:
         st.error(f"Error reading file: {e}")
 elif paste_ids.strip():
@@ -384,13 +362,13 @@ elif use_sample:
     df_input = DEMO_ACCESSION_DF.copy()
 
 # ==========================================
-# 6. CONFIGURATION UI LAYOUT
+# 6. CONFIGURATION UI LAYOUT 
 # ==========================================
 if df_input is not None and not df_input.empty:
     with st.expander(f"👁️ Loaded Accession Input Preview ({len(df_input)} Accessions Ready)", expanded=False):
         st.dataframe(df_input.head(5), use_container_width=True)
 
-    st.markdown("### ⚙️ Configure Sequence Retrieval Engine & FASTA Formatting")
+    st.markdown("### ⚙️️ Configure Sequence Retrieval Engine & FASTA Formatting")
 
     c_top1, c_top2 = st.columns(2)
     with c_top1:
@@ -449,7 +427,7 @@ if df_input is not None and not df_input.empty:
                 "3' ➔ 5' Reverse Complement Strand (Nucleotide Only)"
             ]
         )
-        excel_guard = st.checkbox("🛡️️ Enable Excel Gene-Name Guard (Protects MARCH1 / SEPT2)", value=False)
+        excel_guard = st.checkbox("🛡️ Enable Excel Gene-Name Guard (Protects MARCH1 / SEPT2)", value=False)
 
     current_file_sig = uploaded_file.name if uploaded_file is not None else ("pasted" if paste_ids.strip() else "demo_acc")
     current_mode_sig = f"{current_file_sig}|{core_engine}|{organism}"
@@ -466,16 +444,12 @@ if df_input is not None and not df_input.empty:
             wrap_width = 60 if "60" in wrap_choice else (80 if "80" in wrap_choice else 0)
             do_revcomp = "Reverse Complement" in strand_choice
 
-            # Safely handle headerless .txt files (if column name is actually the first ID)
-            if acc_col.upper().startswith(("NM_", "NP_", "ENS", "NC_", "NR_", "XM_", "XP_")):
-                raw_list = [acc_col] + [str(x).strip() for x in df_input[acc_col].dropna() if str(x).strip()]
-            else:
-                raw_list = [str(x).strip() for x in df_input[acc_col].dropna() if str(x).strip()]
+            raw_list = [str(x).strip() for x in df_input[acc_col].dropna() if str(x).strip()]
 
             if dedup_ids:
                 raw_list = list(dict.fromkeys(raw_list))
 
-            # Limit to 5000 IDs to protect API
+            # Strictly enforce 5,000 ID limit
             if len(raw_list) > 5000:
                 st.warning("⚠️ File exceeds 5,000 IDs. Truncating to the first 5,000 to ensure API stability.")
                 raw_list = raw_list[:5000]
@@ -496,7 +470,7 @@ if df_input is not None and not df_input.empty:
                 prog_text.text(f"Fetching Sequence {i+1} of {total_items}: {q_acc_str}")
                 prog_bar.progress((i + 1) / total_items)
                 
-                # Rate limit protection for live API queries (prevents NCBI blocks)
+                # Protect from NCBI blocks
                 if q_acc_str.split(".")[0].upper() not in DEMO_CACHE:
                     time.sleep(0.35)
                 
@@ -518,6 +492,7 @@ if df_input is not None and not df_input.empty:
                 mol_type = str(res.get("mol", ""))
                 is_prot = "Protein" in mol_type or "peptide" in mol_type.lower()
 
+                # Filter out Proteins if user explicitly requested only Nucleotides
                 if any(k in core_engine for k in ["cDNA", "CDS Only", "Genomic", "Nucleotide Sequences"]) and is_prot:
                     continue
 
@@ -628,7 +603,7 @@ if "fasta_df_t5" in st.session_state:
             d1, d2, d3 = st.columns(3)
             with d1:
                 st.download_button(
-                    "⬇️ 1. Download Compiled Multi-FASTA (.fasta)",
+                    "⬇️️ 1. Download Compiled Multi-FASTA (.fasta)",
                     data=fasta_str.encode("utf-8-sig"),
                     file_name="GenomeTech_Bulk_Sequences.fasta",
                     mime="text/plain"
