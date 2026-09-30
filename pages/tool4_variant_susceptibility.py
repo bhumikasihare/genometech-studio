@@ -323,6 +323,26 @@ CURATED_PATHOGENIC_DB = {
         "actionability": "No Clinical Action Required",
         "therapy": "None required",
         "recommendation": "Benign polymorphism (gnomAD > 4%); exclude from clinical reporting."
+    },
+    "RS121913529": {
+        "gene": "KRAS", "hgvsp": "p.Gly12Asp", "hgvsc": "c.35G>A", "rsid": "rs121913529", "locus": "chr12:25,398,284",
+        "score": 96.0, "clnsig": "Pathogenic", "tier": "TIER 1 - CRITICAL HIGH RISK", "acmg_codes": "PS1, PS3, PM1, PM2, PP5",
+        "stars": "★★★ (Practice Guideline)", "penetrance": "High Somatic Driver (OncoKB Level 1)", "gnomad": 0.00010,
+        "category": "Oncology", "syndrome": "Colorectal & Pancreatic Adenocarcinoma", "omim": "OMIM:190070 | ClinVar:12108",
+        "mechanism": "Constitutive MAPK/ERK Signaling Activation", "inheritance": "Somatic",
+        "actionability": "FDA-Approved Biomarker (Negative Predictor)",
+        "therapy": "Contraindicated for anti-EGFR (Cetuximab/Panitumumab)",
+        "recommendation": "Monitor ctDNA for disease progression; evaluate for emerging G12D targeted inhibitors."
+    },
+    "RS121913279": {
+        "gene": "PIK3CA", "hgvsp": "p.His1047Arg", "hgvsc": "c.3140A>G", "rsid": "rs121913279", "locus": "chr3:178,952,085",
+        "score": 96.5, "clnsig": "Pathogenic", "tier": "TIER 1 - CRITICAL HIGH RISK", "acmg_codes": "PS1, PS3, PM1, PM2, PP5",
+        "stars": "★★★ (Practice Guideline)", "penetrance": "High Somatic Driver (OncoKB Level 1)", "gnomad": 0.00010,
+        "category": "Oncology", "syndrome": "HR+/HER2- Advanced Breast Cancer", "omim": "OMIM:171834 | ClinVar:37604",
+        "mechanism": "Constitutive PI3K/AKT Signaling Activation", "inheritance": "Somatic",
+        "actionability": "FDA / NCCN Level 1 Companion Diagnostic",
+        "therapy": "Alpelisib (Piqray) + Fulvestrant Sensitive",
+        "recommendation": "Initiate Alpelisib targeted therapy; strict monitoring of fasting glucose (hyperglycemia risk)."
     }
 }
 
