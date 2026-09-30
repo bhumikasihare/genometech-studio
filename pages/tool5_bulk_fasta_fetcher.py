@@ -157,13 +157,13 @@ def reset_on_mode_change_t5():
 st.markdown("## Bulk NCBI & Ensembl FASTA Sequence Fetcher")
 st.markdown(
     "Upload or paste a batch of **NCBI RefSeq (`NM_`, `NR_`, `NP_`, `XM_`)** or **Ensembl (`ENSG`, `ENST`, `ENSP`)** accession IDs to "
-    "instantly retrieve, format, and compile full **Nucleotide (cDNA, CDS, Genomic)** or **Protein (Amino Acid)** `.fasta` sequences. "
+    "instantly retrieve, format, and compile full **Nucleotide (cDNA, CDS, Genomic)** or **Protein (Amino Acid)** `.fasta` sequences (up to **5,000 IDs** per run). "
     "Includes **ORF Start/Stop Codon Verification, Cloning Restriction Site Screening (`EcoRI/BamHI/BsaI`), Isoelectric Point (`pI`), and Molecular Weight (`kDa`)**."
 )
 
 with st.expander("📋 Accepted Accession Formats & Complete Researcher Columns (.csv, .txt, .tsv)", expanded=True):
     st.markdown("""
-    * **Supported Accession Databases:**
+    * **Supported Accession Databases (Up to 5,000 per run):**
       1. **Ensembl IDs:** Gene (`ENSG...`), Transcript (`ENST...`), or Protein (`ENSP...`) across Human, Mouse, Rat, Zebrafish, Plant, and Yeast.
       2. **NCBI RefSeq / GenBank IDs:** mRNA/cDNA (`NM_...`, `XM_...`), non-coding RNA (`NR_...`), Genomic (`NC_...`, `NG_...`), or Protein (`NP_...`, `XP_...`).
     * **Complete Wet-Lab & Bioinformatics Columns Included:**
@@ -188,7 +188,7 @@ CODON_TABLE = {
     "AGT": "S", "AGC": "S", "AGA": "R", "AGG": "R", "GGT": "G", "GGC": "G", "GGA": "G", "GGG": "G"
 }
 
-DEMO_SEQUENCE_CACHE = {
+DEMO_CACHE = {
     "NM_000546": {
         "resolved": "NM_000546.6", "db": "NCBI RefSeq", "gene": "TP53", "mol": "Nucleotide (cDNA)",
         "desc": "Tumor protein p53 (TP53), transcript variant 1, mRNA",
@@ -204,6 +204,21 @@ DEMO_SEQUENCE_CACHE = {
         "desc": "Epidermal growth factor receptor (EGFR), transcript variant 1, mRNA",
         "seq": "ATGCGACCCTCCGGGACGGCCGGGGCAGCGCTCCTGGCGCTGCTGGCTGCGCTCTGCCCGGCGAGTCGGGCTCTGGAGGAAAAGAAAGTTTGCCAAGGCACGAGTAACAAGCTCACGCAGTTGGGCACTTTTGAAGATCATTTTCTCAGCCTCCAGAGGATGTTCAATAACTGTGAGGTGGTCCTTGGGAATTTGGAAATTACCTATGTGCAGAGGAATTATGATCTTTCCTTCTTAAAGACCATCCAGGAGGTGGCTGGTTATGTCCTCATTGCCCTCAACACAGTGGAGCGAATTCCTTTGGAAAACCTGCAGATCATCAGAGGAAATATGTACTACGAAAATTCCTATGCCTTAGCAGTCTTATCTAACTATGATGCAAATAAAACCGGACTGAAGGAGCTGCCCATGAGAAATTTACAGGAAATCCTGCATGGCGCCGTGCGGTTCAGCAACAACCCTGCCCTGTGCAACGTGGAGAGCATCCAGTGGCGGGACATTAG"
     },
+    "NM_004333": {
+        "resolved": "NM_004333.6", "db": "NCBI RefSeq", "gene": "BRAF", "mol": "Nucleotide (cDNA)",
+        "desc": "B-Raf proto-oncogene, serine/threonine kinase (BRAF), mRNA",
+        "seq": "ATGGCGGCGCTGAGCGGTGGCGGTGGTGGCGGCGCGGAGCCGGGCCAGGCTCTGTTCAACGGGGACATGGACCCGAGGCCGGCGCCGGCGCCGGCGCCGCGGCCTCTTCGGCTGCGGACCCTGCCCTTGGGAACCCCCGGGAAGCCTACGTGATGGCCAGCGTGGACAACCCCCACGTGTGCCGCCTGCTGGGCATCTGCCTCACCTCCACCGTGCAGCTCATCACGCAGCTCATGCCCTTCGGCTGCCTCCTGGACTATGTCCGGGAACACAAAGACAATATTGGCTCCCAGTACCTGCTCAACTGGTGTGTGCAGATCGCAAAGGGCATGAACTACTTGGAGGACCGTCGCTTGGTGCACCGCGACCTGGCAGCCAGGAACGTACTGGTGA"
+    },
+    "NM_004985": {
+        "resolved": "NM_004985.5", "db": "NCBI RefSeq", "gene": "KRAS", "mol": "Nucleotide (cDNA)",
+        "desc": "KRAS proto-oncogene, GTPase (KRAS), transcript variant a, mRNA",
+        "seq": "ATGACTGAATATAAACTTGTGGTAGTTGGAGCTGGTGGCGTAGGCAAGAGTGCCTTGACGATACAGCTAATTCAGAATCATTTTGTGGACGAATATGATCCAACAATAGAGGATTCCTACAGGAAGCAAGTAGTAATTGATGGAGAAACCTGTCTCTTGGATATTCTCGACACAGCAGGTCAAGAGGAGTACAGTGCAATGAGGGACCAGTACATGAGGACTGGGGAGGGCTTTCTTTGTGTATTTGCCATAAATAATACTAAATCATTTGAAGATATTCACCATTATAGAGAACAAATTAAAAGAGTTAAGGACTCTGAAGATGTACCTATGGTCCTAGTAGGAAATAAATGTGATTTGCCTTCTAGAACAGTAGACACAAAACAGGCTCAGGACTTAGCAAGAAGTTATGGAATTCCTTTTATTGAAACATCAGCAAAGACAAGACAGGGTGTTGATGATGCCTTCTATACATTAGTTCGAGAAATTCGAAAACATAAATAA"
+    },
+    "NM_000314": {
+        "resolved": "NM_000314.8", "db": "NCBI RefSeq", "gene": "PTEN", "mol": "Nucleotide (cDNA)",
+        "desc": "Phosphatase and tensin homolog (PTEN), mRNA",
+        "seq": "ATGACAGCCATCATCAAAGAGATCGTTAGCAGAAACAAAAGGAGATATCAAGAGGATGGATTCGACTTAGACTTGACCTATATTTATCCAAACATTATTGCTATGGGATTTCCTGCAGAAAGACTTGAAGGCGTATACAGGAACAATATTGATGATGTAGTAAGGTTTTTGGATTCAAAGCATAAAAACCATTACAAGATATACAATCTTTGTGCTGAAAGACATTATGACACCGCCAAATTTAACTGCAGAGTTGCACAGTATCCTTTTGAAGACCATAACCCACCACAGCTAGAACTTATCAAACCCTTTTGTGAAGATCTTGACCAATGGCTAAGTGAAGATGACAATCATGTTGCAGCAATTCACTGTAAAGCTGGAAAGGGACGAACTGGTGTAATGATATGTGCATATTTATTACATCGGGGCAAATTTTTAAAGGCACAAGAGGCCCTAGATTTCTATGGGGAAGTAAGGACCAGAGACAAAAAGGGAGTAACTATTCCCAGTCAGAGGCGCTATGTGTATTATTATAGCTACCTGTTG"
+    },
     "ENST00000269305": {
         "resolved": "ENST00000269305.9", "db": "Ensembl", "gene": "TP53", "mol": "Nucleotide (CDS)",
         "desc": "TP53-201 canonical coding sequence",
@@ -213,6 +228,11 @@ DEMO_SEQUENCE_CACHE = {
         "resolved": "NP_000537.3", "db": "NCBI Protein", "gene": "TP53", "mol": "Protein (Amino Acid)",
         "desc": "Cellular tumor antigen p53 isoform a",
         "seq": "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDIEQWFTEDPGPDEAPRMPEAAPPVAPAPAAPTPAAPAPAPSWPLSSSVPSQKTYQGSYGFRLGFLHSGTAKSVTCTYSPALNKMFCQLAKTCPVQLWVDSTPPPGTRVRAMAIYKQSQHMTEVVRRCPHHERCSDSDGLAPPQHLIRVEGNLRVEYLDDRNTFRHSVVVPYEPPEVGSDCTTIHYNYMCNSSCMGGMNRRPILTIITLEDSSGNLLGRNSFEVRVCACPGRDRRTEEENLRKKGEPHHELPPGSTKRALPNNTSSSPQPKKKPLDGEYFTLQIRGRERFEMFRELNEALELKDAQAGKEPGGSRAHSSHLKSKKGQSTSRHKKLMFKTEGPDSD"
+    },
+    "NP_009225": {
+        "resolved": "NP_009225.1", "db": "NCBI Protein", "gene": "BRAF", "mol": "Protein (Amino Acid)",
+        "desc": "B-Raf proto-oncogene serine/threonine-protein kinase isoform a",
+        "seq": "MAALSGGGGGGAEPGQALFNGDMEPEAGAGAGAAASSAADPAIPEEVWNIKQMIKLTQEHIEALLDKFGGEHNPPSIYLEAYEEYTSKLDALQQREQQLLESLGNGTDFSVSSSASMDTVTSSSSSSLSVLPSSLSVFQNPTDVARSNPKSPQKPIVRVFLPNKQRTVVPARCGVTVRDSLKKALMMRGLIPECCAVYRIQDGEKKPIGWDTDISWLTGEELHVEVLENVPLTTHNFVRKTFFTLAFCDFCRKLLFQGFRCQTCGYKFHQRCSTEVPLMCVNYDQLDLLFVSKFFEHHPIPQEEASLAETALTSGSSPSAPASDSIGPQILTSPSPSKSIPIPQPFRPADEDHRNQFGQRDRSSSAPNVHINTIEPVNIDDLIRDQGFRGDGGSTTGLSATPPASLPGSLTNVKALQKSPGPQRERKSSSSSEDRNRMKTLGRRDSSDDWEIPDGQITVGQRIGSGSFGTVYKGKWHGDVAVKMLNVTAPTPQQLQAFKNEVGVLRKTRHVNILLFMGYSTKPQLAIVTQWCEGSSLYHHLHIIETKFEMIKLIDIARQTAQGMDYLHAKSIIHRDLKSNNIFLHEDLTVKIGDFGLATVKSRWSGSHQFEQLSGSILWMAPEVIRMQDKNPYSFQSDVYAFGIVLYELMTGQLPYSNINNRDQIIFMVGRGYLSPDLSKVRSNCPKAMKRLMAECLKKKRDERPLFPQILASIELLARSLPKIHRSASEPSLNRAGFQTEDFSLYACASPKTPIQAGGYGAFPVH"
     }
 }
 
@@ -279,31 +299,32 @@ def fetch_live_accession(raw_acc, core_engine, strip_ver=True):
     lookup_key = raw_acc.split(".")[0].strip().upper()
 
     # 1. Local Cache Lookup
-    if lookup_key in DEMO_SEQUENCE_CACHE:
-        item = DEMO_SEQUENCE_CACHE[lookup_key].copy()
+    if lookup_key in DEMO_CACHE:
+        item = DEMO_CACHE[lookup_key].copy()
         if "Protein" in core_engine and "Nucleotide" in item["mol"]:
             item["seq"] = translate_dna_to_protein(item["seq"])
             item["mol"] = "Protein (Translated CDS)"
             item["desc"] = f"{item['desc']} (Translated)"
         return {"status": "SUCCESS", "resolved": item["resolved"], "db": item["db"], "gene": item["gene"], "mol": item["mol"], "desc": item["desc"], "seq": item["seq"]}
 
-    # 2. Live Ensembl REST API Query
+    # 2. Live Ensembl REST API Query for ENS* IDs
     if clean_base.startswith("ENS"):
         ens_type = "cds" if "CDS" in core_engine else ("genomic" if "Genomic" in core_engine else ("protein" if ("Protein" in core_engine or clean_base.startswith("ENSP")) else "cdna"))
         try:
-            r = requests.get(f"https://rest.ensembl.org/sequence/id/{clean_base}?type={ens_type}", headers={"Content-Type": "application/json"}, timeout=12)
+            url = f"https://rest.ensembl.org/sequence/id/{clean_base}?type={ens_type}"
+            r = requests.get(url, headers={"Content-Type": "application/json"}, timeout=12)
             if r.status_code == 200:
                 data = r.json()
                 mol_label = "Protein (Amino Acid)" if (ens_type == "protein" or clean_base.startswith("ENSP")) else f"Nucleotide ({ens_type.upper()})"
                 return {"status": "SUCCESS", "resolved": data.get("id", raw_acc), "db": "Ensembl (REST API)", "gene": clean_base, "mol": mol_label, "desc": data.get("desc", f"Ensembl {ens_type.upper()}"), "seq": data.get("seq", "")}
         except: pass
 
-    # 3. Live NCBI Entrez Query
+    # 3. Live NCBI Entrez E-Utilities Query for RefSeq / GenBank IDs
     else:
         is_prot = clean_base.startswith(("NP_", "XP_", "YP_", "WP_")) or ("Protein" in core_engine and not clean_base.startswith(("NM_", "NR_", "NC_")))
         db_name = "protein" if is_prot else "nuccore"
         try:
-            url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db={db_name}&id={raw_acc.strip()}&rettype=fasta&retmode=text"
+            url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db={db_name}&id={raw_acc.strip()}&rettype=fasta&retmode=text&tool=OmicsExpress&email=bhumikasihare555@gmail.com"
             r = requests.get(url, timeout=12)
             if r.status_code == 200 and r.text.strip().startswith(">"):
                 lines = r.text.strip().splitlines()
@@ -363,10 +384,10 @@ elif use_sample:
     df_input = DEMO_ACCESSION_DF.copy()
 
 # ==========================================
-# 6. CONFIGURATION UI LAYOUT (Matching Screenshot)
+# 6. CONFIGURATION UI LAYOUT
 # ==========================================
 if df_input is not None and not df_input.empty:
-    with st.expander(f"👁️️ Loaded Accession Input Preview ({len(df_input)} Accessions Ready)", expanded=False):
+    with st.expander(f"👁️ Loaded Accession Input Preview ({len(df_input)} Accessions Ready)", expanded=False):
         st.dataframe(df_input.head(5), use_container_width=True)
 
     st.markdown("### ⚙️ Configure Sequence Retrieval Engine & FASTA Formatting")
@@ -428,7 +449,7 @@ if df_input is not None and not df_input.empty:
                 "3' ➔ 5' Reverse Complement Strand (Nucleotide Only)"
             ]
         )
-        excel_guard = st.checkbox("🛡️ Enable Excel Gene-Name Guard (Protects MARCH1 / SEPT2)", value=False)
+        excel_guard = st.checkbox("🛡️️ Enable Excel Gene-Name Guard (Protects MARCH1 / SEPT2)", value=False)
 
     current_file_sig = uploaded_file.name if uploaded_file is not None else ("pasted" if paste_ids.strip() else "demo_acc")
     current_mode_sig = f"{current_file_sig}|{core_engine}|{organism}"
@@ -445,14 +466,19 @@ if df_input is not None and not df_input.empty:
             wrap_width = 60 if "60" in wrap_choice else (80 if "80" in wrap_choice else 0)
             do_revcomp = "Reverse Complement" in strand_choice
 
-            # Safely handle headerless .txt files
-            if acc_col.startswith(("NM_", "NP_", "ENS", "NC_", "NR_")):
+            # Safely handle headerless .txt files (if column name is actually the first ID)
+            if acc_col.upper().startswith(("NM_", "NP_", "ENS", "NC_", "NR_", "XM_", "XP_")):
                 raw_list = [acc_col] + [str(x).strip() for x in df_input[acc_col].dropna() if str(x).strip()]
             else:
                 raw_list = [str(x).strip() for x in df_input[acc_col].dropna() if str(x).strip()]
 
             if dedup_ids:
                 raw_list = list(dict.fromkeys(raw_list))
+
+            # Limit to 5000 IDs to protect API
+            if len(raw_list) > 5000:
+                st.warning("⚠️ File exceeds 5,000 IDs. Truncating to the first 5,000 to ensure API stability.")
+                raw_list = raw_list[:5000]
 
             total_items = len(raw_list)
             prog_bar = st.progress(0)
@@ -470,8 +496,8 @@ if df_input is not None and not df_input.empty:
                 prog_text.text(f"Fetching Sequence {i+1} of {total_items}: {q_acc_str}")
                 prog_bar.progress((i + 1) / total_items)
                 
-                # Rate limit protection for live queries
-                if q_acc_str.split(".")[0].upper() not in DEMO_SEQUENCE_CACHE:
+                # Rate limit protection for live API queries (prevents NCBI blocks)
+                if q_acc_str.split(".")[0].upper() not in DEMO_CACHE:
                     time.sleep(0.35)
                 
                 if not q_acc_str or q_acc_str.lower() in ["nan", "none", "null"]:
@@ -621,6 +647,10 @@ if "fasta_df_t5" in st.session_state:
                     file_name="GenomeTech_Unresolved_Audit.csv",
                     mime="text/csv"
                 )
+            
+            st.markdown("#### 📦 What you get in these results:")
+            st.info("The `.fasta` file contains your pristine sequences perfectly wrapped and ready for alignment, cloning, or BLAST. The `.csv` file contains verified molecular weights, GC percentages, and fetch diagnostics, natively readable on Windows & Mac.")
+
         else:
             st.markdown("**Live Preview (First 3 Retrieved Rows):**")
             st.dataframe(res_df.head(3), use_container_width=True)
@@ -638,7 +668,7 @@ if "fasta_df_t5" in st.session_state:
             <div class="paywall-overlay">
                 <h3 style="color: #e9d5ff !important; margin-top: 0;">🔒 Unlock Full {stats['success']:,}-Sequence Multi-FASTA Output</h3>
                 <p style="color: #cbd5e1 !important; font-size: 0.95rem;">
-                    Your sequences are compiled and verified above. Complete the $40 OmicsExpress checkout to immediately download the full <code>.fasta</code> file and the Biophysical QC <code>.csv</code> table.
+                    Your sequences are compiled and verified above. Complete the checkout to immediately download the full <code>.fasta</code> file and the Biophysical QC <code>.csv</code> table.
                 </p>
                 <div style="background:rgba(56,189,248,0.14);border:1px solid rgba(56,189,248,0.45);color:#e0f2fe !important;padding:8px 14px;border-radius:8px;font-size:0.88rem;font-weight:600;margin:10px auto 6px auto;max-width:520px;">🔥 <span style="color:#38bdf8 !important;font-weight:800;">FOUNDING LAB LAUNCH OFFER:</span> <s style="color:#94a3b8 !important;">$100 USD</s> <b style="color:#ffffff !important;">$40 USD</b> — Special Early-Access Rate</div><a href="{razorpay_link}" target="_blank" style="background: linear-gradient(90deg, #9333ea 0%, #2563eb 100%); color: white !important; padding: 14px 32px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 1.05rem; display: inline-block; margin: 12px 0; border: 1px solid #c084fc; box-shadow: 0 4px 20px rgba(147, 51, 234, 0.5);">
                     💳 Pay $40 via Razorpay to Unlock .FASTA & .CSV
