@@ -157,7 +157,7 @@ def reset_on_mode_change_t5():
 st.markdown("## Bulk NCBI & Ensembl FASTA Sequence Fetcher")
 st.markdown(
     "Upload or paste a batch of **NCBI RefSeq (`NM_`, `NR_`, `NP_`, `XM_`)** or **Ensembl (`ENSG`, `ENST`, `ENSP`)** accession IDs to "
-    "instantly retrieve, format, and compile full **Nucleotide (cDNA, CDS, Genomic)** or **Protein (Amino Acid)** `.fasta` sequences (limited to **5,000 IDs** per run to protect server stability). "
+    "instantly retrieve, format, and compile full **Nucleotide (cDNA, CDS, Genomic)** or **Protein (Amino Acid)** `.fasta` sequences (up to **5,000 IDs** per run to protect server stability). "
     "Includes **ORF Start/Stop Codon Verification, Cloning Restriction Site Screening (`EcoRI/BamHI/BsaI`), Isoelectric Point (`pI`), and Molecular Weight (`kDa`)**."
 )
 
@@ -170,7 +170,7 @@ with st.expander("📋 Accepted Accession Formats & Complete Researcher Columns 
       1. **Numeric Biophysical Columns:** `Sequence_Length (bp/aa)`, `GC_Content (%)`, `Hydrophobic_AA (%)`, `Molecular_Weight (kDa)`, `Predicted_Protein_pI`, and `Ambiguous_Count (N/X)`.
       2. **Cloning & Synthesis QC:** `ORF_&_Codon_Status` (verifies `ATG` start and `TAA/TAG/TGA` stop codons) and `Internal_Restriction_Sites` (screens for `EcoRI, BamHI, HindIII, NotI, BsaI, BsmBI`).
       3. **3 Instant Deliverables:** (1) Compiled Multi-FASTA (`.fasta`), (2) Excel-Sortable Biophysical & Cloning Metadata Table (`.csv`), and (3) Unresolved Accessions Audit Log (`.csv`).
-    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Sequence (`.fasta`) and vector figure (`.svg` / `.html`) outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**).
+    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Sequence (`.fasta`) and vector outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**).
     * **Single-Mode License Note:** Each checkout unlocks your selected **Core Sequence Retrieval Engine** and **Model Organism**. Adjusting FASTA header formats, line wrapping, deduplication, or strand orientation within your unlocked mode is free; switching the Core Engine/Organism or uploading a new file fundamentally changes the dataset and will require a new run license.
     """)
 
@@ -188,7 +188,6 @@ CODON_TABLE = {
     "AGT": "S", "AGC": "S", "AGA": "R", "AGG": "R", "GGT": "G", "GGC": "G", "GGA": "G", "GGG": "G"
 }
 
-# Robust caching specifically to ensure your file always instantly processes without API timeouts
 DEMO_CACHE = {
     "NM_000546": {"resolved": "NM_000546.6", "db": "NCBI RefSeq", "gene": "TP53", "mol": "Nucleotide (cDNA)", "desc": "Tumor protein p53 (TP53), transcript variant 1, mRNA", "seq": "ATGGAGGAGCCGCAGTCAGATCCTAGCGTCGAGCCCCCTCTGAGTCAGGAAACATTTTCAGACCTATGGAAACTACTTCCTGAAAACAACGTTCTGTCCCCCTTGCCGTCCCAAGCAATGGATGATTTGATGCTGTCCCCGGACGATATTGAACAATGGTTCACTGAAGACCCAGGTCCAGATGAAGCTCCCAGAATGCCAGAGGCTGCTCCCCCCGTGGCCCCTGCACCAGCAGCTCCTACACCGGCGGCCCCTGCACCAGCCCCCTCCTGGCCCCTGTCATCTTCTGTCCCTTCCCAGAAAACCTACCAGGGCAGCTACGGTTTCCGTCTGGGCTTCTTGCATTCTGGGACAGCCAAGTCTGTGACTTGCACGTACTCCCCTGCCCTCAACAAGATGTTTTGCCAACTGGCCAAGACCTGCCCTGTGCAGCTGTGGGTTGATTCCACACCCCCGCCCGGCACCCGCGTCCGCGCCATGGCCATCTACAAGCAGTCACATGA"},
     "NM_007294": {"resolved": "NM_007294.4", "db": "NCBI RefSeq", "gene": "BRCA1", "mol": "Nucleotide (cDNA)", "desc": "BRCA1 DNA repair associated (BRCA1), transcript variant 1, mRNA", "seq": "ATGGATTTATCTGCTCTTCGCGTTGAAGAAGTACAAAATGTCATTAATGCTATGCAGAAAATCTTAGAGTGTCCCATCTGTCTGGAGTTGATCAAGGAACCTGTCTCCACAAAGTGTGACCACATATTTTGCAAATTTTGCATGCTGAAACTTCTCAACCAGAAGAAAGGGCCTTCACAGTGTCCTTTATGTAAGAATGATATAACCAAAAGGAGCCTACAAGAAAGTACGAGATTTAGTCAACTTGTTGAAGAGCTATTGAAAATCATTTGTGCTTTTCAGCTTGACACAGGTTTGGAGTATGCAAACAGCTATAATTTTGCAAAAAAGGAAAATAACTCTCCTGAACATCTAAAAGATGAAGTTTCTATCATCCAAAGTATGGGCTACAGAAACCGTGCCAAAAGACTTCTACAGAGTGAACCCGAAAATCCTTCCTTGCAGGAAACCAGTCTCAGTGTCCAACTCTCTAACCTTGGAACTGTGAGAACTCTGAGGACTAA"},
@@ -200,7 +199,7 @@ DEMO_CACHE = {
     "NP_009225": {"resolved": "NP_009225.1", "db": "NCBI Protein", "gene": "BRAF", "mol": "Protein (Amino Acid)", "desc": "B-Raf proto-oncogene serine/threonine-protein kinase isoform a", "seq": "MAALSGGGGGGAEPGQALFNGDMEPEAGAGAGAAASSAADPAIPEEVWNIKQMIKLTQEHIEALLDKFGGEHNPPSIYLEAYEEYTSKLDALQQREQQLLESLGNGTDFSVSSSASMDTVTSSSSSSLSVLPSSLSVFQNPTDVARSNPKSPQKPIVRVFLPNKQRTVVPARCGVTVRDSLKKALMMRGLIPECCAVYRIQDGEKKPIGWDTDISWLTGEELHVEVLENVPLTTHNFVRKTFFTLAFCDFCRKLLFQGFRCQTCGYKFHQRCSTEVPLMCVNYDQLDLLFVSKFFEHHPIPQEEASLAETALTSGSSPSAPASDSIGPQILTSPSPSKSIPIPQPFRPADEDHRNQFGQRDRSSSAPNVHINTIEPVNIDDLIRDQGFRGDGGSTTGLSATPPASLPGSLTNVKALQKSPGPQRERKSSSSSEDRNRMKTLGRRDSSDDWEIPDGQITVGQRIGSGSFGTVYKGKWHGDVAVKMLNVTAPTPQQLQAFKNEVGVLRKTRHVNILLFMGYSTKPQLAIVTQWCEGSSLYHHLHIIETKFEMIKLIDIARQTAQGMDYLHAKSIIHRDLKSNNIFLHEDLTVKIGDFGLATVKSRWSGSHQFEQLSGSILWMAPEVIRMQDKNPYSFQSDVYAFGIVLYELMTGQLPYSNINNRDQIIFMVGRGYLSPDLSKVRSNCPKAMKRLMAECLKKKRDERPLFPQILASIELLARSLPKIHRSASEPSLNRAGFQTEDFSLYACASPKTPIQAGGYGAFPVH"}
 }
 
-DEMO_ACCESSION_DF = pd.DataFrame({"Accession_ID": ["NM_000546.6", "NM_007294.4", "NM_005228.5", "ENST00000269305.9", "NP_000537.3"]})
+DEMO_ACCESSION_DF = pd.DataFrame({"Accession_ID": ["NM_000546.6", "NM_007294.4", "NM_005228.5", "NP_000537.3"]})
 
 def rev_comp_dna(seq):
     trans = str.maketrans("ATGCRYSWKMBDHVNatgcryswkmbdhvn", "TACGYRSWMKVHDBNtacgyrswmkvhdbn")
@@ -330,19 +329,24 @@ paste_ids = st.text_area(
     on_change=reset_on_mode_change_t5
 )
 
-# Robustly load the dataframe, preventing blank column names
+# Robustly load the dataframe, preventing pandas from destroying un-headered txt lists
 df_input = None
 if uploaded_file is not None:
     try:
         fname = uploaded_file.name.lower()
-        # Parse based on extension
-        df_input = pd.read_csv(uploaded_file, sep=None, engine="python")
+        if fname.endswith(".csv"):
+            df_input = pd.read_csv(uploaded_file)
+        else:
+            df_input = pd.read_csv(uploaded_file, sep="\t")
             
         # Fail-safe: Detect if a headerless .txt file was uploaded and pandas grabbed the first ID as the column name
         first_col = str(df_input.columns[0]).upper()
         if not df_input.empty and first_col.startswith(("NM_", "NP_", "ENS", "NC_", "NR_", "XM_", "XP_")):
             uploaded_file.seek(0)
-            df_input = pd.read_csv(uploaded_file, sep=None, engine='python', header=None)
+            if fname.endswith(".csv"):
+                df_input = pd.read_csv(uploaded_file, header=None)
+            else:
+                df_input = pd.read_csv(uploaded_file, sep="\t", header=None)
             df_input.columns = ["Accession_ID"] + [f"Col_{i}" for i in range(1, len(df_input.columns))]
             
     except Exception as e:
@@ -353,7 +357,6 @@ elif paste_ids.strip():
 elif use_sample:
     df_input = DEMO_ACCESSION_DF.copy()
 
-# Ensure we never have a blank column name
 if df_input is not None and not df_input.empty:
     df_input.columns = [str(c).strip() if str(c).strip() else f"Column_{i}" for i, c in enumerate(df_input.columns)]
 
@@ -364,7 +367,7 @@ if df_input is not None and not df_input.empty:
     with st.expander(f"👁️ Loaded Accession Input Preview ({len(df_input)} Accessions Ready)", expanded=False):
         st.dataframe(df_input.head(5), use_container_width=True)
 
-    st.markdown("### ⚙ Configure Sequence Retrieval Engine & FASTA Formatting")
+    st.markdown("### ⚙️ Configure Sequence Retrieval Engine & FASTA Formatting")
 
     c_top1, c_top2 = st.columns(2)
     with c_top1:
@@ -387,7 +390,7 @@ if df_input is not None and not df_input.empty:
             on_change=reset_on_mode_change_t5
         )
         if org_select == "Other (Custom Organism)":
-            organism = st.text_input("Enter Custom Organism Name:", value="Arabidopsis thaliana", on_change=reset_on_mode_change_t5)
+            organism = st.text_input("Enter Custom Organism Name:", value="Arabidopsis thaliana")
         else:
             organism = org_select
 
@@ -603,7 +606,7 @@ if "fasta_df_t5" in st.session_state:
             d1, d2, d3 = st.columns(3)
             with d1:
                 st.download_button(
-                    "⬇️️ 1. Download Compiled Multi-FASTA (.fasta)",
+                    "⬇️ 1. Download Compiled Multi-FASTA (.fasta)",
                     data=fasta_str.encode("utf-8-sig"),
                     file_name="GenomeTech_Bulk_Sequences.fasta",
                     mime="text/plain"
@@ -684,7 +687,7 @@ if "fasta_df_t5" in st.session_state:
             subject = urllib.parse.quote(f"OmicsExpress Tool #5 Remark - {client_email}")
             body = urllib.parse.quote(
                 f"Client Email: {client_email}\n"
-                f"Tool Used: Tool #5 - Bulk NCBI & Ensembl FASTA Fetcher\n"
+                f"Tool Used: Tool #5 - Bulk FASTA Fetcher\n"
                 f"Engine: {stats['engine']} | Organism: {stats['org']}\n"
                 f"Accessions Queried: {stats['queried']} (Compiled: {stats['success']})\n"
                 f"Total Sequence Volume: {stats['total_len']} bp/aa\n\n"
