@@ -1,15 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import math
-import html
+import scipy.stats as sp_stats
 import urllib.parse
-
-try:
-    from scipy import stats as sp_stats
-    HAS_SCIPY = True
-except ImportError:
-    HAS_SCIPY = False
 
 # 1. Page Configuration (Isolated Single-Tool View)
 st.set_page_config(
@@ -62,6 +55,12 @@ st.markdown("""
         font-weight: 800;
         letter-spacing: 0.5px;
         color: #ffffff !important;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+        cursor: pointer;
+    }
+    .gts-brand:hover {
+        opacity: 0.85;
     }
     .gts-sub {
         color: #c4b5fd !important;
@@ -137,7 +136,7 @@ st.markdown("""
 
 <div class="gts-navbar">
     <div>
-        <span class="gts-brand">🧬 GenomeTech Studio</span>
+        <a href="https://genometechstudio.github.io" class="gts-brand">🧬 GenomeTech Studio</a>
         <span class="gts-sub">| OmicsExpress Automated Suite</span>
     </div>
     <span class="gts-badge">⚡ Tool #7: Automated ANOVA & Post-Hoc Suite</span>
@@ -164,23 +163,23 @@ def reset_on_mode_change_t7():
 
 st.markdown("## Automated ANOVA, Post-Hoc & 4-Panel Publication Figure Suite")
 st.markdown(
-    "Compute **One-Way ANOVA, Welch's ANOVA, or Non-Parametric Kruskal-Wallis tests** with **Tukey's HSD / Games-Howell / Dunn's Post-Hoc** comparisons instantly[cite: 11]. "
+    "Compute **One-Way ANOVA, Welch's ANOVA, or Non-Parametric Kruskal-Wallis tests** with **Tukey's HSD / Games-Howell / Dunn's Post-Hoc** comparisons instantly. "
     "Includes **Shapiro-Wilk Normality & Levene's Variance Audits**, **3 Excel-Ready Statistical Tables (`.csv`)**, "
-    "**4 High-Resolution Vector Figures (`.svg`)**, and a **1-Click Printable Visual Report (`.html`)**[cite: 11]."
+    "**4 High-Resolution Vector Figures (`.svg`)**, and a **1-Click Printable Visual Report (`.html`)**."
 )
 
 with st.expander("📋 Accepted File Formats, Cross-Platform Guide & Complete Deliverables (.csv, .svg, .html)", expanded=True):
     st.markdown("""
     * **Supported Data Layouts:**
-      1. **Standard Sample-Row Table (Default):** Contains an Experimental Group column and one or more numeric Gene/Biomarker/Cytokine columns[cite: 11].
-      2. **Wide Group-Column Table:** Each column represents a separate experimental treatment group with replicate measurements in the rows[cite: 11].
+      1. **Standard Sample-Row Table (Default):** Contains an Experimental Group column and one or more numeric Gene/Biomarker/Cytokine columns.
+      2. **Wide Group-Column Table:** Each column represents a separate experimental treatment group with replicate measurements in the rows.
     * **4 Publication-Ready Figures & 3 Statistical Tables Generated Automatically:**
-      * **Figure 1A (Significance Boxplot):** Median, IQR box, Mean diamond (`◆`), individual replicate jitter points, and pairwise significance star brackets[cite: 11].
-      * **Figure 1B (GraphPad-Style Mean ± SD Bar Chart):** Group mean bars with standard deviation whiskers, overlaid sample dots, and significance brackets[cite: 11].
-      * **Figure 1C (Post-Hoc 95% CI Forest Plot):** Visualizes pairwise mean differences (`Group B - Group A`) and 95% confidence intervals against the zero-effect line[cite: 11].
-      * **Figure 1D (Multi-Biomarker Z-Score Trajectory Plot):** Compares standardized expression trajectories across all biomarkers in your dataset[cite: 11].
-    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**[cite: 11]. Vector figure (`.svg` / `.html`) outputs open natively in any web browser (**Safari / Chrome / Edge**) or vector editor (**Illustrator / PowerPoint / Keynote**)[cite: 11].
-    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Statistical Engine** across all biomarkers in your uploaded dataset[cite: 11]. Switching between target biomarkers, changing color palettes, or adjusting cutoffs within your unlocked engine is free; switching the Core Statistical Engine or uploading a new file starts a new run[cite: 11].
+      * **Figure 1A (Significance Boxplot):** Median, IQR box, Mean diamond (`◆`), individual replicate jitter points, and pairwise significance star brackets.
+      * **Figure 1B (GraphPad-Style Mean ± SD Bar Chart):** Group mean bars with standard deviation whiskers, overlaid sample dots, and significance brackets.
+      * **Figure 1C (Post-Hoc 95% CI Forest Plot):** Visualizes pairwise mean differences (`Group B - Group A`) and 95% confidence intervals against the zero-effect line.
+      * **Figure 1D (Multi-Biomarker Z-Score Trajectory Plot):** Compares standardized expression trajectories across all biomarkers in your dataset.
+    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Vector figure (`.svg` / `.html`) outputs open natively in any web browser (**Safari / Chrome / Edge**) or vector editor (**Illustrator / PowerPoint / Keynote**).
+    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Statistical Engine** across all biomarkers in your uploaded dataset. Switching between target biomarkers, changing color palettes, or adjusting cutoffs within your unlocked engine is free; switching the Core Statistical Engine or uploading a new file starts a new run.
     """)
 
 # ==========================================
@@ -260,13 +259,11 @@ def shapiro_normality_p(vals):
     v = np.array(vals, dtype=float)
     if len(v) < 3:
         return 1.0
-    if HAS_SCIPY:
-        try:
-            _, p_val = sp_stats.shapiro(v)
-            return float(p_val)
-        except Exception:
-            pass
-    # Skewness-Kurtosis normality approximation fallback
+    try:
+        _, p_val = sp_stats.shapiro(v)
+        return float(p_val)
+    except Exception:
+        pass
     std_v = float(np.std(v, ddof=1))
     if std_v <= 1e-9:
         return 1.0
@@ -276,8 +273,10 @@ def shapiro_normality_p(vals):
     return min(1.0, max(1e-6, 2.0 * normal_sf(z_stat)))
 
 def t_dist_two_tail_p(t_val, df):
-    if HAS_SCIPY:
+    try:
         return float(sp_stats.t.sf(abs(t_val), df) * 2.0)
+    except Exception:
+        pass
     t_abs = abs(t_val)
     if df <= 0:
         return 1.0
@@ -287,8 +286,10 @@ def t_dist_two_tail_p(t_val, df):
 def f_dist_sf_p(f_val, df1, df2):
     if f_val <= 0 or df1 <= 0 or df2 <= 0:
         return 1.0
-    if HAS_SCIPY:
+    try:
         return float(sp_stats.f.sf(f_val, df1, df2))
+    except Exception:
+        pass
     a = 2.0 / (9.0 * df1)
     b = 2.0 / (9.0 * df2)
     f_cbrt = f_val ** (1.0 / 3.0)
@@ -300,8 +301,10 @@ def f_dist_sf_p(f_val, df1, df2):
 def chi2_sf_p(chi2_val, df):
     if chi2_val <= 0 or df <= 0:
         return 1.0
-    if HAS_SCIPY:
+    try:
         return float(sp_stats.chi2.sf(chi2_val, df))
+    except Exception:
+        pass
     k = float(df)
     z = ((chi2_val / k) ** (1.0 / 3.0) - (1.0 - 2.0 / (9.0 * k))) / math.sqrt(2.0 / (9.0 * k))
     return min(1.0, max(1e-15, normal_sf(z)))
@@ -309,11 +312,10 @@ def chi2_sf_p(chi2_val, df):
 def tukey_hsd_p(q_val, k_groups, df_within):
     if q_val <= 0:
         return 1.0
-    if HAS_SCIPY and hasattr(sp_stats, "studentized_range"):
-        try:
-            return float(sp_stats.studentized_range.sf(q_val, k_groups, df_within))
-        except Exception:
-            pass
+    try:
+        return float(sp_stats.studentized_range.sf(q_val, k_groups, df_within))
+    except Exception:
+        pass
     t_equiv = q_val / math.sqrt(2.0)
     p_unadj = t_dist_two_tail_p(t_equiv, df_within)
     n_pairs = max(1, (k_groups * (k_groups - 1)) // 2)
@@ -358,10 +360,10 @@ def run_omnibus_and_posthoc(groups_dict, engine_mode):
         p_omni = f_dist_sf_p(f_stat, df1, df_welch)
         omni_name = f"Welch F({df1}, {df_welch:.1f}) = {f_stat:.2f}"
     elif "Kruskal-Wallis" in engine_mode:
-        if HAS_SCIPY:
+        try:
             h_stat, p_omni = sp_stats.kruskal(*arrays)
             f_stat = float(h_stat)
-        else:
+        except Exception:
             ranks = pd.Series(all_vals).rank().values
             idx = 0
             r_sums = []
@@ -1268,6 +1270,6 @@ if "posthoc_df_t7" in st.session_state:
                 f"Significant Pairs: {stats['sig_pairs']} / {stats['total_pairs']}\n\n"
                 f"Client Remarks:\n{client_remark}"
             )
-            mailto_url = f"mailto:bhumikasihare555@gmail.com?subject={subject}&body={body}"
+            mailto_url = f"mailto:genometechstudio@gmail.com?subject={subject}&body={body}"
             st.success("✅ Your remark and biostatistical diagnostics are ready! Click below to send directly from your email client:")
-            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=bhumikasihare555@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)
+            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=genometechstudio@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)

@@ -55,6 +55,12 @@ st.markdown("""
         font-weight: 800;
         letter-spacing: 0.5px;
         color: #ffffff !important;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+        cursor: pointer;
+    }
+    .gts-brand:hover {
+        opacity: 0.85;
     }
     .gts-sub {
         color: #c4b5fd !important;
@@ -130,7 +136,7 @@ st.markdown("""
 
 <div class="gts-navbar">
     <div>
-        <span class="gts-brand">🧬 GenomeTech Studio</span>
+        <a href="https://genometechstudio.github.io" class="gts-brand">🧬 GenomeTech Studio</a>
         <span class="gts-sub">| OmicsExpress Automated Suite</span>
     </div>
     <span class="gts-badge">⚡ Tool #2: Automated Primer Design</span>
@@ -783,6 +789,6 @@ if "primer_df_t2" in st.session_state:
                 f"Mean Optimum Match Rate: {stats['mean_opt_rate']}%\n\n"
                 f"Client Remarks:\n{client_remark}"
             )
-            mailto_url = f"mailto:bhumikasihare555@gmail.com?subject={subject}&body={body}"
+            mailto_url = f"mailto:genometechstudio@gmail.com?subject={subject}&body={body}"
             st.success("✅ Your remark and primer diagnostics are ready! Click below to send directly from your email client:")
-            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=bhumikasihare555@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)
+            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=genometechstudio@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)

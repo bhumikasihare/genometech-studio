@@ -57,6 +57,12 @@ st.markdown("""
         font-weight: 800;
         letter-spacing: 0.5px;
         color: #ffffff !important;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+        cursor: pointer;
+    }
+    .gts-brand:hover {
+        opacity: 0.85;
     }
     .gts-sub {
         color: #c4b5fd !important;
@@ -132,7 +138,7 @@ st.markdown("""
 
 <div class="gts-navbar">
     <div>
-        <span class="gts-brand">🧬 GenomeTech Studio</span>
+        <a href="https://genometechstudio.github.io" class="gts-brand">🧬 GenomeTech Studio</a>
         <span class="gts-sub">| OmicsExpress Automated Suite</span>
     </div>
     <span class="gts-badge">⚡ Tool #5: Bulk FASTA Fetcher</span>
@@ -157,21 +163,21 @@ def reset_on_mode_change_t5():
 st.markdown("## Bulk NCBI & Ensembl FASTA Sequence Fetcher")
 st.markdown(
     "Upload or paste a batch of **NCBI RefSeq (`NM_`, `NR_`, `NP_`, `XM_`)** or **Ensembl (`ENSG`, `ENST`, `ENSP`)** accession IDs to "
-    "instantly retrieve, format, and compile full **Nucleotide (cDNA, CDS, Genomic)** or **Protein (Amino Acid)** `.fasta` sequences (up to **5,000 IDs** per run to protect server stability)[cite: 9]. "
-    "Includes **ORF Start/Stop Codon Verification, Cloning Restriction Site Screening (`EcoRI/BamHI/BsaI`), Isoelectric Point (`pI`), and Molecular Weight (`kDa`)**[cite: 9]."
+    "instantly retrieve, format, and compile full **Nucleotide (cDNA, CDS, Genomic)** or **Protein (Amino Acid)** `.fasta` sequences (up to **5,000 IDs** per run to protect server stability). "
+    "Includes **ORF Start/Stop Codon Verification, Cloning Restriction Site Screening (`EcoRI/BamHI/BsaI`), Isoelectric Point (`pI`), and Molecular Weight (`kDa`)**."
 )
 
 with st.expander("📋 Accepted Accession Formats & Complete Researcher Columns (.csv, .txt, .tsv)", expanded=True):
     st.markdown("""
-    * **Supported Accession Databases (Up to 5,000 per run):**[cite: 9]
-      1. **Ensembl IDs:** Gene (`ENSG...`), Transcript (`ENST...`), or Protein (`ENSP...`) across Human, Mouse, Rat, Zebrafish, Plant, and Yeast[cite: 9].
-      2. **NCBI RefSeq / GenBank IDs:** mRNA/cDNA (`NM_...`, `XM_...`), non-coding RNA (`NR_...`), Genomic (`NC_...`, `NG_...`), or Protein (`NP_...`, `XP_...`)[cite: 9].
-    * **Complete Wet-Lab & Bioinformatics Columns Included:**[cite: 9]
-      1. **Numeric Biophysical Columns:** `Sequence_Length (bp/aa)`, `GC_Content (%)`, `Hydrophobic_AA (%)`, `Molecular_Weight (kDa)`, `Predicted_Protein_pI`, and `Ambiguous_Count (N/X)`[cite: 9].
-      2. **Cloning & Synthesis QC:** `ORF_&_Codon_Status` (verifies `ATG` start and `TAA/TAG/TGA` stop codons) and `Internal_Restriction_Sites` (screens for `EcoRI, BamHI, HindIII, NotI, BsaI, BsmBI`)[cite: 9].
-      3. **3 Instant Deliverables:** (1) Compiled Multi-FASTA (`.fasta`), (2) Excel-Sortable Biophysical & Cloning Metadata Table (`.csv`), and (3) Unresolved Accessions Audit Log (`.csv`)[cite: 9].
-    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**[cite: 9]. Sequence (`.fasta`) and vector outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**)[cite: 9].
-    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Sequence Retrieval Engine** and **Model Organism**[cite: 9]. Adjusting FASTA header formats, line wrapping, deduplication, or strand orientation within your unlocked mode is free; switching the Core Engine/Organism or uploading a new file fundamentally changes the dataset and will require a new run license[cite: 9].
+    * **Supported Accession Databases (Up to 5,000 per run):**
+      1. **Ensembl IDs:** Gene (`ENSG...`), Transcript (`ENST...`), or Protein (`ENSP...`) across Human, Mouse, Rat, Zebrafish, Plant, and Yeast.
+      2. **NCBI RefSeq / GenBank IDs:** mRNA/cDNA (`NM_...`, `XM_...`), non-coding RNA (`NR_...`), Genomic (`NC_...`, `NG_...`), or Protein (`NP_...`, `XP_...`)[cite: 8].
+    * **Complete Wet-Lab & Bioinformatics Columns Included:**[cite: 8]
+      1. **Numeric Biophysical Columns:** `Sequence_Length (bp/aa)`, `GC_Content (%)`, `Hydrophobic_AA (%)`, `Molecular_Weight (kDa)`, `Predicted_Protein_pI`, and `Ambiguous_Count (N/X)`[cite: 8].
+      2. **Cloning & Synthesis QC:** `ORF_&_Codon_Status` (verifies `ATG` start and `TAA/TAG/TGA` stop codons) and `Internal_Restriction_Sites` (screens for `EcoRI, BamHI, HindIII, NotI, BsaI, BsmBI`)[cite: 8].
+      3. **3 Instant Deliverables:** (1) Compiled Multi-FASTA (`.fasta`), (2) Excel-Sortable Biophysical & Cloning Metadata Table (`.csv`), and (3) Unresolved Accessions Audit Log (`.csv`)[cite: 8].
+    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**[cite: 8]. Sequence (`.fasta`) and vector outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**)[cite: 8].
+    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Sequence Retrieval Engine** and **Model Organism**[cite: 8]. Adjusting FASTA header formats, line wrapping, deduplication, or strand orientation within your unlocked mode is free; switching the Core Engine/Organism or uploading a new file fundamentally changes the dataset and will require a new run license[cite: 8].
     """)
 
 # ==========================================
@@ -743,8 +749,8 @@ if "fasta_df_t5" in st.session_state:
     st.info(
         f"**Automated Bulk FASTA Diagnostics:**\n"
         f"* **Retrieval Pipeline:** {stats['engine']} ({stats['org']})\n"
-        f"* **Compilation Summary:** Successfully retrieved, deduplicated, and formatted **{stats['success']:,}** of **{stats['queried']:,}** accessions (Total sequence volume: **{stats['total_len']:,} bp/aa**, Mean length: **{stats['mean_len']:,} bp/aa**)[cite: 9].\n"
-        f"* **Biophysical & Cloning QC Audit:** Computed numeric GC% / Hydrophobic AA%, molecular weight (kDa), predicted protein pI, start/stop codon ORF integrity, and screened for internal cloning restriction sites (`EcoRI, BamHI, HindIII, NotI, BsaI, BsmBI`)[cite: 9]."
+        f"* **Compilation Summary:** Successfully retrieved, deduplicated, and formatted **{stats['success']:,}** of **{stats['queried']:,}** accessions (Total sequence volume: **{stats['total_len']:,} bp/aa**, Mean length: **{stats['mean_len']:,} bp/aa**)[cite: 8].\n"
+        f"* **Biophysical & Cloning QC Audit:** Computed numeric GC% / Hydrophobic AA%, molecular weight (kDa), predicted protein pI, start/stop codon ORF integrity, and screened for internal cloning restriction sites (`EcoRI, BamHI, HindIII, NotI, BsaI, BsmBI`)[cite: 8]."
     )
 
     with st.expander("💬 Send Remarks or Questions Directly to GenomeTech Team (via Email)"):
@@ -760,6 +766,6 @@ if "fasta_df_t5" in st.session_state:
                 f"Total Sequence Volume: {stats['total_len']} bp/aa\n\n"
                 f"Client Remarks:\n{client_remark}"
             )
-            mailto_url = f"mailto:bhumikasihare555@gmail.com?subject={subject}&body={body}"
+            mailto_url = f"mailto:genometechstudio@gmail.com?subject={subject}&body={body}"
             st.success("✅ Your remark and FASTA diagnostics are ready! Click below to send directly from your email client:")
-            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=bhumikasihare555@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)
+            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=genometechstudio@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)

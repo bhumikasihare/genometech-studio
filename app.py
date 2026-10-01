@@ -73,6 +73,12 @@ st.markdown("""
         font-weight: 800;
         letter-spacing: 0.5px;
         color: #ffffff !important;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+        cursor: pointer;
+    }
+    .gts-brand:hover {
+        opacity: 0.85;
     }
     .gts-sub {
         color: #38bdf8 !important;
@@ -138,7 +144,7 @@ st.markdown("""
 
 <div class="gts-navbar">
     <div>
-        <span class="gts-brand">🧬 GenomeTech Studio</span>
+        <a href="https://genometechstudio.github.io" class="gts-brand">🧬 GenomeTech Studio</a>
         <span class="gts-sub">| OmicsExpress Automated Bioinformatics Suite</span>
     </div>
     <span class="gts-badge">🔥 Founding Lab Offer: <s>$100</s> $40 USD (First 20 Clients)</span>

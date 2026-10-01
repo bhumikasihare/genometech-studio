@@ -55,6 +55,12 @@ st.markdown("""
         font-weight: 800;
         letter-spacing: 0.5px;
         color: #ffffff !important;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+        cursor: pointer;
+    }
+    .gts-brand:hover {
+        opacity: 0.85;
     }
     .gts-sub {
         color: #c4b5fd !important;
@@ -130,7 +136,7 @@ st.markdown("""
 
 <div class="gts-navbar">
     <div>
-        <span class="gts-brand">🧬 GenomeTech Studio</span>
+        <a href="https://genometechstudio.github.io" class="gts-brand">🧬 GenomeTech Studio</a>
         <span class="gts-sub">| OmicsExpress Automated Suite</span>
     </div>
     <span class="gts-badge">⚡ Tool #6: Clinical & Genomic Merger</span>
@@ -152,24 +158,24 @@ def reset_on_mode_change_t6():
 
 st.markdown("## Clinical & Genomic Dataset Merger")
 st.markdown(
-    "Upload mismatched **Clinical Patient Metadata** and **Transcriptomic / Genomic Expression Matrices** (`.csv`, `.tsv`, `.txt`)[cite: 10]. "
+    "Upload mismatched **Clinical Patient Metadata** and **Transcriptomic / Genomic Expression Matrices** (`.csv`, `.tsv`, `.txt`). "
     "Automatically harmonizes inconsistent sample barcodes (`PT-01` vs `pt_001_RNAseq`, `TCGA.A1.A0SB` vs `TCGA-A1-A0SB-01A`), "
-    "rescues specimen tissue tags (`Tumor` vs `Normal`), transposes `Genes × Samples` matrices, and outputs one unified master file[cite: 10]."
+    "rescues specimen tissue tags (`Tumor` vs `Normal`), transposes `Genes × Samples` matrices, and outputs one unified master file."
 )
 
 with st.expander("📋 Accepted File Formats & Sample Barcode Harmonization Features (.csv, .tsv, .txt)", expanded=True):
     st.markdown("""
-    * **File 1 — Clinical Metadata Spreadsheet:** Patient rows containing clinical variables (`Age`, `Sex`, `Clinical_Stage`, `Treatment_Response`, `OS_Months`, `Vital_Status`)[cite: 10].
-    * **File 2 — Transcriptomic / Genomic Spreadsheet:** Either **Samples-as-Rows** OR standard RNA-seq **Genes-as-Rows (`Genes × Samples`)** expression/mutation matrices[cite: 10].
-    * **Complete Researcher & Biostatistician Features Included:**[cite: 10]
-      1. **Smart Barcode Harmonizer & Tissue Extractor:** Reconciles delimiter mismatches (`.` / `_` / `-`), normalizes zero-padding (`PT-1` $\leftrightarrow$ `PT-001`), truncates **12-char TCGA Patient Barcodes**, and automatically extracts **`Extracted_Specimen_Type`** (`Primary Tumor (01A)`, `Matched Normal (11A)`, `Tumor`, `Normal`) before stripping suffixes[cite: 10].
-      2. **3 Synchronized Deliverables:**[cite: 10]
-         * **Deliverable #1:** Unified Master Clinical + Genomic Table (`Patients × [Clinical + Genes]`) for Excel, SPSS, GraphPad Prism, and Kaplan-Meier survival analysis[cite: 10].
-         * **Deliverable #2:** `DESeq2 / edgeR / Limma` Expression Matrix (`Genes × Matched_Samples`) with sample columns ordered **identically** to the clinical patient rows[cite: 10].
-         * **Deliverable #3:** Sample Barcode Crosswalk & Unmatched Orphan Audit Log[cite: 10].
-      3. **Transformation & Missing Value Controls:** Supports $\log_2(x+1)$ scaling, per-gene **Z-score standardization**, replicate averaging, and missing value (`NA`) imputation[cite: 10].
-    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**[cite: 10]. Sequence (`.fasta`) and vector figure (`.svg` / `.html`) outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**)[cite: 10].
-    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Cohort Merge Strategy** for your uploaded files[cite: 10]. Adjusting barcode rules, normalization, Z-scores, or NA handling within your unlocked strategy is free; switching the Core Strategy or uploading new files starts a new run[cite: 10].
+    * **File 1 — Clinical Metadata Spreadsheet:** Patient rows containing clinical variables (`Age`, `Sex`, `Clinical_Stage`, `Treatment_Response`, `OS_Months`, `Vital_Status`).
+    * **File 2 — Transcriptomic / Genomic Spreadsheet:** Either **Samples-as-Rows** OR standard RNA-seq **Genes-as-Rows (`Genes × Samples`)** expression/mutation matrices.
+    * **Complete Researcher & Biostatistician Features Included:**[cite: 9]
+      1. **Smart Barcode Harmonizer & Tissue Extractor:** Reconciles delimiter mismatches (`.` / `_` / `-`), normalizes zero-padding (`PT-1` $\leftrightarrow$ `PT-001`), truncates **12-char TCGA Patient Barcodes**, and automatically extracts **`Extracted_Specimen_Type`** (`Primary Tumor (01A)`, `Matched Normal (11A)`, `Tumor`, `Normal`) before stripping suffixes[cite: 9].
+      2. **3 Synchronized Deliverables:**[cite: 9]
+         * **Deliverable #1:** Unified Master Clinical + Genomic Table (`Patients × [Clinical + Genes]`) for Excel, SPSS, GraphPad Prism, and Kaplan-Meier survival analysis[cite: 9].
+         * **Deliverable #2:** `DESeq2 / edgeR / Limma` Expression Matrix (`Genes × Matched_Samples`) with sample columns ordered **identically** to the clinical patient rows[cite: 9].
+         * **Deliverable #3:** Sample Barcode Crosswalk & Unmatched Orphan Audit Log[cite: 9].
+      3. **Transformation & Missing Value Controls:** Supports $\log_2(x+1)$ scaling, per-gene **Z-score standardization**, replicate averaging, and missing value (`NA`) imputation[cite: 9].
+    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**[cite: 9]. Sequence (`.fasta`) and vector figure (`.svg` / `.html`) outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**)[cite: 9].
+    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Cohort Merge Strategy** for your uploaded files[cite: 9]. Adjusting barcode rules, normalization, Z-scores, or NA handling within your unlocked strategy is free; switching the Core Strategy or uploading new files starts a new run[cite: 9].
     """)
 
 # ==========================================
@@ -671,8 +677,8 @@ if "merged_df_t6" in st.session_state:
     st.info(
         f"**Automated Clinical & Genomic Merger Diagnostics:**\n"
         f"* **Cohort Merge Strategy:** {stats['engine']}\n"
-        f"* **Barcode Harmonization & Tissue Rescue:** Aligned **{stats['matched']}** patients across **{stats['clin_in']}** clinical records and **{stats['gen_in']}** genomic assays (**{stats['rescued']}** mismatched barcodes rescued; tissue origin tags preserved in `Extracted_Specimen_Type`)[cite: 10].\n"
-        f"* **DESeq2 / R Synchronization & Orphan Audit:** Generated both a patient-row master table (`{stats['final_rows']} × {stats['final_cols']}`) and a `Genes × Matched_Samples` matrix with **0 column-order mismatches**, plus an audit log of **{stats['orphans']}** unmatched orphan ID(s)[cite: 10]."
+        f"* **Barcode Harmonization & Tissue Rescue:** Aligned **{stats['matched']}** patients across **{stats['clin_in']}** clinical records and **{stats['gen_in']}** genomic assays (**{stats['rescued']}** mismatched barcodes rescued; tissue origin tags preserved in `Extracted_Specimen_Type`)[cite: 9].\n"
+        f"* **DESeq2 / R Synchronization & Orphan Audit:** Generated both a patient-row master table (`{stats['final_rows']} × {stats['final_cols']}`) and a `Genes × Matched_Samples` matrix with **0 column-order mismatches**, plus an audit log of **{stats['orphans']}** unmatched orphan ID(s)[cite: 9]."
     )
 
     with st.expander("💬 Send Remarks or Questions Directly to GenomeTech Team (via Email)"):
@@ -688,6 +694,6 @@ if "merged_df_t6" in st.session_state:
                 f"Matched Cohort: {stats['matched']} (Rescued via Barcode Harmonization: {stats['rescued']})\n\n"
                 f"Client Remarks:\n{client_remark}"
             )
-            mailto_url = f"mailto:bhumikasihare555@gmail.com?subject={subject}&body={body}"
+            mailto_url = f"mailto:genometechstudio.github.io?subject={subject}&body={body}"
             st.success("✅ Your remark and alignment diagnostics are ready! Click below to send directly from your email client:")
-            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=bhumikasihare555@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)
+            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=genometechstudio@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)

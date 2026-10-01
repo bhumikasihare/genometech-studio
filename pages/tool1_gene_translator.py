@@ -55,6 +55,12 @@ st.markdown("""
         font-weight: 800;
         letter-spacing: 0.5px;
         color: #ffffff !important;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+        cursor: pointer;
+    }
+    .gts-brand:hover {
+        opacity: 0.85;
     }
     .gts-sub {
         color: #c4b5fd !important;
@@ -130,7 +136,7 @@ st.markdown("""
 
 <div class="gts-navbar">
     <div>
-        <span class="gts-brand">🧬 GenomeTech Studio</span>
+        <a href="https://genometechstudio.github.io" class="gts-brand">🧬 GenomeTech Studio</a>
         <span class="gts-sub">| OmicsExpress Automated Suite</span>
     </div>
     <span class="gts-badge">⚡ Tool #1: Universal Gene ID Translator</span>
@@ -191,7 +197,7 @@ if uploaded_file is not None:
         else:
             df_input = pd.read_csv(uploaded_file)
         if len(df_input) > 50000:
-            st.warning("⚠️ File exceeds 50,000 rows. Truncating to the first 50,000 IDs.")
+            st.warning("⚠️️ File exceeds 50,000 rows. Truncating to the first 50,000 IDs.")
             df_input = df_input.iloc[:50000]
     except Exception as e:
         st.error(f"Error reading file: {e}. Please ensure it is a valid .csv or .txt file.")
@@ -437,14 +443,14 @@ if "result_df_t1" in st.session_state:
         d1, d2 = st.columns(2)
         with d1:
             st.download_button(
-                "⬇️️ 1. Download Complete Translated & Annotated Table (.csv)",
+                "⬇ 1. Download Complete Translated & Annotated Table (.csv)",
                 data=res_df.to_csv(index=False).encode("utf-8-sig"),
                 file_name="GenomeTech_Translated_Genes.csv",
                 mime="text/csv"
             )
         with d2:
             st.download_button(
-                "⬇️ 2. Download Unmapped IDs Audit Report (.csv)",
+                "⬇️️ 2. Download Unmapped IDs Audit Report (.csv)",
                 data=unmap_df.to_csv(index=False).encode("utf-8-sig"),
                 file_name="GenomeTech_Unmapped_IDs.csv",
                 mime="text/csv"
@@ -575,6 +581,6 @@ if "result_df_t1" in st.session_state:
                 f"Total IDs Processed: {stats['total']} (Mapped: {stats['pct']:.1f}%)\n\n"
                 f"Client Remarks:\n{client_remark}"
             )
-            mailto_url = f"mailto:bhumikasihare555@gmail.com?subject={subject}&body={body}"
+            mailto_url = f"mailto:genometechstudio@gmail.com?subject={subject}&body={body}"
             st.success("✅ Your remark and run diagnostics are ready! Click below to send directly from your email client:")
-            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=bhumikasihare555@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)
+            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=genometechstudio@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)

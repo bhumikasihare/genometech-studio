@@ -54,6 +54,12 @@ st.markdown("""
         font-weight: 800;
         letter-spacing: 0.5px;
         color: #ffffff !important;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+        cursor: pointer;
+    }
+    .gts-brand:hover {
+        opacity: 0.85;
     }
     .gts-sub {
         color: #c4b5fd !important;
@@ -129,7 +135,7 @@ st.markdown("""
 
 <div class="gts-navbar">
     <div>
-        <span class="gts-brand">🧬 GenomeTech Studio</span>
+        <a href="https://genometechstudio.github.io" class="gts-brand">🧬 GenomeTech Studio</a>
         <span class="gts-sub">| OmicsExpress Automated Suite</span>
     </div>
     <span class="gts-badge">⚡ Tool #3: VCF to Clinical CSV</span>
@@ -163,9 +169,9 @@ with st.expander("📋 Required File Format & Clinical Features (.vcf, .txt, or 
       1. **Multi-Sample Selector:** Freely switch between sample columns (e.g., `TUMOR` vs. `NORMAL` or family trios) within your uploaded VCF.
       2. **Complete HGVS & Transcript Unpacking:** Extracts `Transcript_ID`, `Coding_DNA_Change (HGVSc)`, and `Protein_Change (HGVSp)`.
       3. **Population Frequency Filtering:** Extracts `gnomAD_AF` / population MAF so you can filter out common polymorphisms.
-      4. **Microsoft Excel Gene-Date Guard:** Prevents Excel from auto-corrupting gene symbols like `MARCH1` or `SEPT2` into calendar dates (`01-Mar`).
-    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Sequence (`.fasta`) and vector figure (`.svg` / `.html`) outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**).
-    * **Single-Mode License Note:** Each checkout unlocks your selected **Core VCF Parsing Pipeline Mode** across all samples in your uploaded VCF file. Switching the Core Pipeline Mode or uploading a new file starts a new run.
+      4. **Microsoft Excel Gene-Date Guard:** Prevents Excel from auto-corrupting gene symbols like `MARCH1` or `SEPT2` into calendar dates (`01-Mar`).[cite: 6]
+    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Sequence (`.fasta`) and vector figure (`.svg` / `.html`) outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**).[cite: 6]
+    * **Single-Mode License Note:** Each checkout unlocks your selected **Core VCF Parsing Pipeline Mode** across all samples in your uploaded VCF file. Switching the Core Pipeline Mode or uploading a new file starts a new run.[cite: 6]
     """)
 
 # ==========================================
@@ -744,6 +750,6 @@ if "vcf_df_t3" in st.session_state:
                 f"Actionable Variants: {stats['actionable']} | Ti/Tv Ratio: {stats['titv']}\n\n"
                 f"Client Remarks:\n{client_remark}"
             )
-            mailto_url = f"mailto:bhumikasihare555@gmail.com?subject={subject}&body={body}"
+            mailto_url = f"mailto:genometechstudio@gmail.com?subject={subject}&body={body}"
             st.success("✅ Your remark and VCF diagnostics are ready! Click below to send directly from your email client:")
-            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=bhumikasihare555@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)
+            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=genometechstudio@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)

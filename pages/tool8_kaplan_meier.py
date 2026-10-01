@@ -62,6 +62,12 @@ st.markdown("""
         font-weight: 800;
         letter-spacing: 0.5px;
         color: #ffffff !important;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+        cursor: pointer;
+    }
+    .gts-brand:hover {
+        opacity: 0.85;
     }
     .gts-sub {
         color: #c4b5fd !important;
@@ -137,7 +143,7 @@ st.markdown("""
 
 <div class="gts-navbar">
     <div>
-        <span class="gts-brand">🧬 GenomeTech Studio</span>
+        <a href="https://genometechstudio.github.io" class="gts-brand">🧬 GenomeTech Studio</a>
         <span class="gts-sub">| OmicsExpress Automated Suite</span>
     </div>
     <span class="gts-badge">⚡ Tool #8: Kaplan-Meier Survival Plotter</span>
@@ -165,25 +171,25 @@ def reset_on_mode_change_t8():
 
 st.markdown("## Kaplan-Meier Clinical Survival & Prognostic Biomarker Suite")
 st.markdown(
-    "Upload clinical **Time-to-Event (`OS` / `PFS` / `DFS` / `RFS`)** and **Gene Expression / Biomarker** spreadsheets (`.csv`, `.tsv`, `.txt`)[cite: 12]. "
+    "Upload clinical **Time-to-Event (`OS` / `PFS` / `DFS` / `RFS`)** and **Gene Expression / Biomarker** spreadsheets (`.csv`, `.tsv`, `.txt`). "
     "Instantly computes **Mantel-Cox Log-Rank exact $P$-values, Hazard Ratios ($\text{HR}$) with 95% CIs, Restricted Mean Survival Time (`RMST`), "
-    "Optimal Cutpoint thresholds, Greenwood 95% CI bands, Number-at-Risk tables, and 4 Publication-Ready Vector Figures (`.svg`)**[cite: 12]."
+    "Optimal Cutpoint thresholds, Greenwood 95% CI bands, Number-at-Risk tables, and 4 Publication-Ready Vector Figures (`.svg`)**."
 )
 
 with st.expander("📋 Accepted File Formats, Cross-Platform Guide & Complete Deliverables (.csv, .svg, .html)", expanded=True):
     st.markdown("""
     * **Required Columns in Your Spreadsheet:**
-      1. **Follow-Up Time Column:** Numeric survival time (`OS_Months`, `PFS_Days`, `FollowUp_Years`)[cite: 12].
-      2. **Event Status Column:** Supports numeric (`1` = Event/Deceased/Relapsed, `0` = Censored/Alive/Event-Free) OR clinical text (`Deceased`/`Alive`, `Dead`/`Living`, `Event`/`Censored`, `Progressed`/`Stable`)[cite: 12].
-      3. **Biomarker / Gene Columns (or Clinical Group Column):** Continuous expression columns (`TPM`, `FPKM`, `Log2`, `Protein_Level`) or categorical arms (`Stage`, `Treatment_Group`)[cite: 12].
-    * **4 Publication-Ready Figures & 4 Clinical CSV Tables Generated Automatically:**[cite: 12]
-      * **Figure 1A (Annotated Kaplan-Meier Curve + Number-at-Risk Table):** Step-function survival curves, toggleable **95% CI shaded ribbons**, censored tick marks (`+`), 50% median drop-lines, and aligned **Number at Risk** matrix[cite: 12].
-      * **Figure 1B (Nelson-Aalen Cumulative Hazard Trajectory):** Plots cumulative event hazard $H(t)$ over follow-up time[cite: 12].
-      * **Figure 1C (Multi-Gene Prognostic Hazard Ratio Forest Plot):** Ranks all genes/biomarkers in your file by Hazard Ratio ($\text{HR}$) and 95% CI[cite: 12].
-      * **Figure 1D (Landmark Survival Probability Chart):** Automatically adapts landmarks to your chosen time unit (`12/24/36/60 Months`, `1/2/3/5 Years`, or `180/365/730/1095 Days`)[cite: 12].
-      * **4 CSV Tables:** (1) Cohort Summary (`Median Survival`, `RMST`, `HR`, `Landmarks`), (2) Patient-Level Risk Group Assignments (`High` vs `Low`), (3) Multi-Gene Batch Prognostic Screen, and (4) Exact KM Step Coordinates[cite: 12].
-    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**[cite: 12]. Vector figure (`.svg` / `.html`) outputs open natively in any web browser (**Safari / Chrome / Edge**) or vector editor (**Illustrator / PowerPoint / Keynote**)[cite: 12].
-    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Stratification & Survival Engine** across all genes/biomarkers in your uploaded dataset[cite: 12]. Switching between target genes, changing endpoints, toggling 95% CI ribbons, or adjusting time units within your unlocked engine is free; switching the Core Survival Engine or uploading a new file starts a new run[cite: 12].
+      1. **Follow-Up Time Column:** Numeric survival time (`OS_Months`, `PFS_Days`, `FollowUp_Years`).
+      2. **Event Status Column:** Supports numeric (`1` = Event/Deceased/Relapsed, `0` = Censored/Alive/Event-Free) OR clinical text (`Deceased`/`Alive`, `Dead`/`Living`, `Event`/`Censored`, `Progressed`/`Stable`).
+      3. **Biomarker / Gene Columns (or Clinical Group Column):** Continuous expression columns (`TPM`, `FPKM`, `Log2`, `Protein_Level`) or categorical arms (`Stage`, `Treatment_Group`).
+    * **4 Publication-Ready Figures & 4 Clinical CSV Tables Generated Automatically:**
+      * **Figure 1A (Annotated Kaplan-Meier Curve + Number-at-Risk Table):** Step-function survival curves, toggleable **95% CI shaded ribbons**, censored tick marks (`+`), 50% median drop-lines, and aligned **Number at Risk** matrix.
+      * **Figure 1B (Nelson-Aalen Cumulative Hazard Trajectory):** Plots cumulative event hazard $H(t)$ over follow-up time.
+      * **Figure 1C (Multi-Gene Prognostic Hazard Ratio Forest Plot):** Ranks all genes/biomarkers in your file by Hazard Ratio ($\text{HR}$) and 95% CI.
+      * **Figure 1D (Landmark Survival Probability Chart):** Automatically adapts landmarks to your chosen time unit (`12/24/36/60 Months`, `1/2/3/5 Years`, or `180/365/730/1095 Days`).
+      * **4 CSV Tables:** (1) Cohort Summary (`Median Survival`, `RMST`, `HR`, `Landmarks`), (2) Patient-Level Risk Group Assignments (`High` vs `Low`), (3) Multi-Gene Batch Prognostic Screen, and (4) Exact KM Step Coordinates.
+    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Vector figure (`.svg` / `.html`) outputs open natively in any web browser (**Safari / Chrome / Edge**) or vector editor (**Illustrator / PowerPoint / Keynote**).
+    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Stratification & Survival Engine** across all genes/biomarkers in your uploaded dataset. Switching between target genes, changing endpoints, toggling 95% CI ribbons, or adjusting time units within your unlocked engine is free; switching the Core Survival Engine or uploading a new file starts a new run.
     """)
 
 # ==========================================
@@ -240,8 +246,10 @@ def normal_sf(z):
 def chi2_1df_p(chi2_val):
     if chi2_val <= 0:
         return 1.0
-    if HAS_SCIPY:
+    try:
         return float(sp_stats.chi2.sf(chi2_val, 1))
+    except Exception:
+        pass
     return min(1.0, max(1e-15, 2.0 * normal_sf(math.sqrt(chi2_val))))
 
 def format_p(p):
@@ -940,7 +948,7 @@ if df_input is not None and not df_input.empty:
         excel_guard = st.checkbox(
             "🛡️ Enable Excel Gene-Name Guard (Protects MARCH1 / SEPT2)",
             value=False,
-            help="Wraps gene symbols as explicit Excel strings (=\"GENE\") so Microsoft Excel never converts MARCH1 or SEPT2 into calendar dates."
+            help="Wraps gene symbols as explicit Excel text strings (=\"GENE\") so Microsoft Excel never converts MARCH1 or SEPT2 into calendar dates."
         )
 
     current_file_sig = uploaded_file.name if uploaded_file is not None else "demo_survival"
@@ -1209,7 +1217,7 @@ if "km_curve_df_t8" in st.session_state:
             st.download_button(
                 "⬇️ 3. Batch Multi-Gene HR Screen (.csv)",
                 data=batch_df.to_csv(index=False).encode("utf-8-sig"),
-                file_name="GenomeTech_Batch_Prognostic_HR_Screen.csv",
+                file_name=f"GenomeTech_Batch_Prognostic_HR_Screen.csv",
                 mime="text/csv"
             )
             st.download_button(
@@ -1226,7 +1234,7 @@ if "km_curve_df_t8" in st.session_state:
                 mime="text/csv"
             )
             st.download_button(
-                "⬇️️ 8. All-in-One Visual Report (.html)",
+                "⬇️ 8. All-in-One Visual Report (.html)",
                 data=html_rep.encode("utf-8"),
                 file_name=f"GenomeTech_Survival_Visual_Report_{stats['feature']}.html",
                 mime="text/html"
@@ -1362,6 +1370,6 @@ if "km_curve_df_t8" in st.session_state:
                 f"Hazard Ratio (95% CI): {stats['hr_str']} | Log-Rank P: {stats['p_lr_str']}\n\n"
                 f"Client Remarks:\n{client_remark}"
             )
-            mailto_url = f"mailto:bhumikasihare555@gmail.com?subject={subject}&body={body}"
+            mailto_url = f"mailto:genometechstudio@gmail.com?subject={subject}&body={body}"
             st.success("✅ Your remark and survival diagnostics are ready! Click below to send directly from your email client:")
-            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=bhumikasihare555@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)
+            st.markdown(f'👉 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=genometechstudio@gmail.com&su={subject}&body={body}" target="_blank" style="color:#38bdf8;font-weight:700;text-decoration:underline;">Click Here to Send via Gmail (Browser)</a> &nbsp;|&nbsp; <a href="{mailto_url}" style="color:#c4b5fd;font-weight:600;text-decoration:underline;">Open in Default Mail App (Outlook/Mac)</a>', unsafe_allow_html=True)
