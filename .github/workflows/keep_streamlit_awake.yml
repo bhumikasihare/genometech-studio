@@ -26,8 +26,8 @@ jobs:
 
           URLS = [
               "https://genometech-client-app.streamlit.app/",
-              "https://genomics-dashboard-jc7w8ehgobjbw5mvrwunvu.streamlit.app/",
-              "https://bhumika-rnaseq.streamlit.app/",
+              "https://genometech-tier1.streamlit.app/",
+              "https://genometech-tier2.streamlit.app/",
               "https://genometech-tier4.streamlit.app/",
               "https://genometech-tier5.streamlit.app/",
               "https://genometech-checkout.streamlit.app/",
