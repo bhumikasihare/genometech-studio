@@ -656,6 +656,7 @@ if "vcf_df_t3" in st.session_state:
                     import time
                     
                     DB_FILE = "used_keys.json"
+                    AUTHORIZED_DEMO_KEYS = ["GTS-DEMO-VRINDAVAN", "GTS-DEMO-BARSANA", "GTS-DEMO-GOVARDHAN"]
                     
                     def is_key_burned(key_to_check):
                         if not os.path.exists(DB_FILE):
@@ -677,8 +678,8 @@ if "vcf_df_t3" in st.session_state:
                         st.session_state["is_unlocked_t3"] = True
                         st.rerun()
 
-                    # 2. DEMO KEY CHECK (One-Time Use)
-                    elif entered_key.startswith("GTS-DEMO-"):
+                    # 2. AUTHORIZED DEMO KEY CHECK (One-Time Use)
+                    elif entered_key in AUTHORIZED_DEMO_KEYS:
                         burned, burn_date = is_key_burned(entered_key)
                         if burned:
                             st.error(f"❌ Security Lock: This Demo Key was already claimed on {burn_date}.")
@@ -687,7 +688,7 @@ if "vcf_df_t3" in st.session_state:
                             st.session_state["is_unlocked_t3"] = True
                             st.rerun()
 
-                    # 3. RAZORPAY API VERIFICATION (One-Time Use)
+                    # 3. RAZORPAY API VERIFICATION (Amount-Checked & One-Time Use)
                     elif entered_key.startswith("pay_") and len(entered_key) >= 14:
                         burned, burn_date = is_key_burned(entered_key)
                         if burned:
@@ -700,9 +701,13 @@ if "vcf_df_t3" in st.session_state:
                                 
                                 # Verify the transaction was successful
                                 if payment["status"] in ["captured", "authorized"]:
-                                    burn_key(entered_key)
-                                    st.session_state["is_unlocked_t3"] = True
-                                    st.rerun()
+                                    # Check for $40 USD (4000 cents) OR ₹3500 INR (350000 paise)
+                                    if (payment["amount"] >= 4000 and payment["currency"] == "USD") or (payment["amount"] >= 350000 and payment["currency"] == "INR"):
+                                        burn_key(entered_key)
+                                        st.session_state["is_unlocked_t3"] = True
+                                        st.rerun()
+                                    else:
+                                        st.error(f"❌ Invalid Payment Amount. Expected $40.00 USD or ₹3500 INR, but found {payment['amount']/100:.2f} {payment['currency']}.")
                                 else:
                                     st.error(f"❌ Payment Status: {payment['status'].upper()}. This transaction is not complete.")
                                     
@@ -710,7 +715,7 @@ if "vcf_df_t3" in st.session_state:
                                 st.error("❌ Invalid Payment ID. The bank API could not verify this transaction.")
                                 
                     else:
-                        st.error("❌ Invalid Key Format. Must be a valid Razorpay ID (pay_...) or authorized Demo Key.")
+                        st.error("❌ Invalid Key Format or Unauthorized Demo Key.")
         # --- END API & ANTI-REUSE GATEWAY UPGRADE ---
 
     # ==========================================

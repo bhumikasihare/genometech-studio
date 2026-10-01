@@ -157,21 +157,21 @@ def reset_on_mode_change_t5():
 st.markdown("## Bulk NCBI & Ensembl FASTA Sequence Fetcher")
 st.markdown(
     "Upload or paste a batch of **NCBI RefSeq (`NM_`, `NR_`, `NP_`, `XM_`)** or **Ensembl (`ENSG`, `ENST`, `ENSP`)** accession IDs to "
-    "instantly retrieve, format, and compile full **Nucleotide (cDNA, CDS, Genomic)** or **Protein (Amino Acid)** `.fasta` sequences (up to **5,000 IDs** per run to protect server stability). "
-    "Includes **ORF Start/Stop Codon Verification, Cloning Restriction Site Screening (`EcoRI/BamHI/BsaI`), Isoelectric Point (`pI`), and Molecular Weight (`kDa`)**."
+    "instantly retrieve, format, and compile full **Nucleotide (cDNA, CDS, Genomic)** or **Protein (Amino Acid)** `.fasta` sequences (up to **5,000 IDs** per run to protect server stability)[cite: 9]. "
+    "Includes **ORF Start/Stop Codon Verification, Cloning Restriction Site Screening (`EcoRI/BamHI/BsaI`), Isoelectric Point (`pI`), and Molecular Weight (`kDa`)**[cite: 9]."
 )
 
 with st.expander("📋 Accepted Accession Formats & Complete Researcher Columns (.csv, .txt, .tsv)", expanded=True):
     st.markdown("""
-    * **Supported Accession Databases (Up to 5,000 per run):**
-      1. **Ensembl IDs:** Gene (`ENSG...`), Transcript (`ENST...`), or Protein (`ENSP...`) across Human, Mouse, Rat, Zebrafish, Plant, and Yeast.
-      2. **NCBI RefSeq / GenBank IDs:** mRNA/cDNA (`NM_...`, `XM_...`), non-coding RNA (`NR_...`), Genomic (`NC_...`, `NG_...`), or Protein (`NP_...`, `XP_...`).
-    * **Complete Wet-Lab & Bioinformatics Columns Included:**
-      1. **Numeric Biophysical Columns:** `Sequence_Length (bp/aa)`, `GC_Content (%)`, `Hydrophobic_AA (%)`, `Molecular_Weight (kDa)`, `Predicted_Protein_pI`, and `Ambiguous_Count (N/X)`.
-      2. **Cloning & Synthesis QC:** `ORF_&_Codon_Status` (verifies `ATG` start and `TAA/TAG/TGA` stop codons) and `Internal_Restriction_Sites` (screens for `EcoRI, BamHI, HindIII, NotI, BsaI, BsmBI`).
-      3. **3 Instant Deliverables:** (1) Compiled Multi-FASTA (`.fasta`), (2) Excel-Sortable Biophysical & Cloning Metadata Table (`.csv`), and (3) Unresolved Accessions Audit Log (`.csv`).
-    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Sequence (`.fasta`) and vector outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**).
-    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Sequence Retrieval Engine** and **Model Organism**. Adjusting FASTA header formats, line wrapping, deduplication, or strand orientation within your unlocked mode is free; switching the Core Engine/Organism or uploading a new file fundamentally changes the dataset and will require a new run license.
+    * **Supported Accession Databases (Up to 5,000 per run):**[cite: 9]
+      1. **Ensembl IDs:** Gene (`ENSG...`), Transcript (`ENST...`), or Protein (`ENSP...`) across Human, Mouse, Rat, Zebrafish, Plant, and Yeast[cite: 9].
+      2. **NCBI RefSeq / GenBank IDs:** mRNA/cDNA (`NM_...`, `XM_...`), non-coding RNA (`NR_...`), Genomic (`NC_...`, `NG_...`), or Protein (`NP_...`, `XP_...`)[cite: 9].
+    * **Complete Wet-Lab & Bioinformatics Columns Included:**[cite: 9]
+      1. **Numeric Biophysical Columns:** `Sequence_Length (bp/aa)`, `GC_Content (%)`, `Hydrophobic_AA (%)`, `Molecular_Weight (kDa)`, `Predicted_Protein_pI`, and `Ambiguous_Count (N/X)`[cite: 9].
+      2. **Cloning & Synthesis QC:** `ORF_&_Codon_Status` (verifies `ATG` start and `TAA/TAG/TGA` stop codons) and `Internal_Restriction_Sites` (screens for `EcoRI, BamHI, HindIII, NotI, BsaI, BsmBI`)[cite: 9].
+      3. **3 Instant Deliverables:** (1) Compiled Multi-FASTA (`.fasta`), (2) Excel-Sortable Biophysical & Cloning Metadata Table (`.csv`), and (3) Unresolved Accessions Audit Log (`.csv`)[cite: 9].
+    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**[cite: 9]. Sequence (`.fasta`) and vector outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**)[cite: 9].
+    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Sequence Retrieval Engine** and **Model Organism**[cite: 9]. Adjusting FASTA header formats, line wrapping, deduplication, or strand orientation within your unlocked mode is free; switching the Core Engine/Organism or uploading a new file fundamentally changes the dataset and will require a new run license[cite: 9].
     """)
 
 # ==========================================
@@ -367,7 +367,7 @@ if df_input is not None and not df_input.empty:
     with st.expander(f"👁️ Loaded Accession Input Preview ({len(df_input)} Accessions Ready)", expanded=False):
         st.dataframe(df_input.head(5), use_container_width=True)
 
-    st.markdown("### ⚙️️ Configure Sequence Retrieval Engine & FASTA Formatting")
+    st.markdown("### ⚙ Configure Sequence Retrieval Engine & FASTA Formatting")
 
     c_top1, c_top2 = st.columns(2)
     with c_top1:
@@ -430,7 +430,7 @@ if df_input is not None and not df_input.empty:
                 "3' ➔ 5' Reverse Complement Strand (Nucleotide Only)"
             ]
         )
-        excel_guard = st.checkbox("🛡️️ Enable Excel Gene-Name Guard (Protects MARCH1 / SEPT2)", value=False)
+        excel_guard = st.checkbox("🛡 Enable Excel Gene-Name Guard (Protects MARCH1 / SEPT2)", value=False)
 
     current_file_sig = uploaded_file.name if uploaded_file is not None else ("pasted" if paste_ids.strip() else "demo_acc")
     current_mode_sig = f"{current_file_sig}|{core_engine}|{organism}"
@@ -672,6 +672,7 @@ if "fasta_df_t5" in st.session_state:
                         import time
                         
                         DB_FILE = "used_keys.json"
+                        AUTHORIZED_DEMO_KEYS = ["GTS-DEMO-HARI", "GTS-DEMO-KRISHNA", "GTS-DEMO-GOVIND"]
                         
                         def is_key_burned(key_to_check):
                             if not os.path.exists(DB_FILE):
@@ -693,8 +694,8 @@ if "fasta_df_t5" in st.session_state:
                             st.session_state["is_unlocked_t5"] = True
                             st.rerun()
 
-                        # 2. DEMO KEY CHECK (One-Time Use)
-                        elif entered_key.startswith("GTS-DEMO-"):
+                        # 2. AUTHORIZED DEMO KEY CHECK (One-Time Use)
+                        elif entered_key in AUTHORIZED_DEMO_KEYS:
                             burned, burn_date = is_key_burned(entered_key)
                             if burned:
                                 st.error(f"❌ Security Lock: This Demo Key was already claimed on {burn_date}.")
@@ -703,7 +704,7 @@ if "fasta_df_t5" in st.session_state:
                                 st.session_state["is_unlocked_t5"] = True
                                 st.rerun()
 
-                        # 3. RAZORPAY API VERIFICATION (One-Time Use)
+                        # 3. RAZORPAY API VERIFICATION (Amount-Checked & One-Time Use)
                         elif entered_key.startswith("pay_") and len(entered_key) >= 14:
                             burned, burn_date = is_key_burned(entered_key)
                             if burned:
@@ -716,9 +717,13 @@ if "fasta_df_t5" in st.session_state:
                                     
                                     # Verify the transaction was successful
                                     if payment["status"] in ["captured", "authorized"]:
-                                        burn_key(entered_key)
-                                        st.session_state["is_unlocked_t5"] = True
-                                        st.rerun()
+                                        # Check for $40 USD (4000 cents) OR ₹3500 INR (350000 paise)
+                                        if (payment["amount"] >= 4000 and payment["currency"] == "USD") or (payment["amount"] >= 350000 and payment["currency"] == "INR"):
+                                            burn_key(entered_key)
+                                            st.session_state["is_unlocked_t5"] = True
+                                            st.rerun()
+                                        else:
+                                            st.error(f"❌ Invalid Payment Amount. Expected $40.00 USD or ₹3500 INR, but found {payment['amount']/100:.2f} {payment['currency']}.")
                                     else:
                                         st.error(f"❌ Payment Status: {payment['status'].upper()}. This transaction is not complete.")
                                         
@@ -726,7 +731,7 @@ if "fasta_df_t5" in st.session_state:
                                     st.error("❌ Invalid Payment ID. The bank API could not verify this transaction.")
                                     
                         else:
-                            st.error("❌ Invalid Key Format. Must be a valid Razorpay ID (pay_...) or authorized Demo Key.")
+                            st.error("❌ Invalid Key Format or Unauthorized Demo Key.")
             # --- END API & ANTI-REUSE GATEWAY UPGRADE ---
 
     # ==========================================
@@ -738,8 +743,8 @@ if "fasta_df_t5" in st.session_state:
     st.info(
         f"**Automated Bulk FASTA Diagnostics:**\n"
         f"* **Retrieval Pipeline:** {stats['engine']} ({stats['org']})\n"
-        f"* **Compilation Summary:** Successfully retrieved, deduplicated, and formatted **{stats['success']:,}** of **{stats['queried']:,}** accessions (Total sequence volume: **{stats['total_len']:,} bp/aa**, Mean length: **{stats['mean_len']:,} bp/aa**).\n"
-        f"* **Biophysical & Cloning QC Audit:** Computed numeric GC% / Hydrophobic AA%, molecular weight (kDa), predicted protein pI, start/stop codon ORF integrity, and screened for internal cloning restriction sites (`EcoRI, BamHI, HindIII, NotI, BsaI, BsmBI`)."
+        f"* **Compilation Summary:** Successfully retrieved, deduplicated, and formatted **{stats['success']:,}** of **{stats['queried']:,}** accessions (Total sequence volume: **{stats['total_len']:,} bp/aa**, Mean length: **{stats['mean_len']:,} bp/aa**)[cite: 9].\n"
+        f"* **Biophysical & Cloning QC Audit:** Computed numeric GC% / Hydrophobic AA%, molecular weight (kDa), predicted protein pI, start/stop codon ORF integrity, and screened for internal cloning restriction sites (`EcoRI, BamHI, HindIII, NotI, BsaI, BsmBI`)[cite: 9]."
     )
 
     with st.expander("💬 Send Remarks or Questions Directly to GenomeTech Team (via Email)"):

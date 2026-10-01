@@ -165,25 +165,25 @@ def reset_on_mode_change_t8():
 
 st.markdown("## Kaplan-Meier Clinical Survival & Prognostic Biomarker Suite")
 st.markdown(
-    "Upload clinical **Time-to-Event (`OS` / `PFS` / `DFS` / `RFS`)** and **Gene Expression / Biomarker** spreadsheets (`.csv`, `.tsv`, `.txt`). "
+    "Upload clinical **Time-to-Event (`OS` / `PFS` / `DFS` / `RFS`)** and **Gene Expression / Biomarker** spreadsheets (`.csv`, `.tsv`, `.txt`)[cite: 12]. "
     "Instantly computes **Mantel-Cox Log-Rank exact $P$-values, Hazard Ratios ($\text{HR}$) with 95% CIs, Restricted Mean Survival Time (`RMST`), "
-    "Optimal Cutpoint thresholds, Greenwood 95% CI bands, Number-at-Risk tables, and 4 Publication-Ready Vector Figures (`.svg`)**."
+    "Optimal Cutpoint thresholds, Greenwood 95% CI bands, Number-at-Risk tables, and 4 Publication-Ready Vector Figures (`.svg`)**[cite: 12]."
 )
 
 with st.expander("📋 Accepted File Formats, Cross-Platform Guide & Complete Deliverables (.csv, .svg, .html)", expanded=True):
     st.markdown("""
     * **Required Columns in Your Spreadsheet:**
-      1. **Follow-Up Time Column:** Numeric survival time (`OS_Months`, `PFS_Days`, `FollowUp_Years`).
-      2. **Event Status Column:** Supports numeric (`1` = Event/Deceased/Relapsed, `0` = Censored/Alive/Event-Free) OR clinical text (`Deceased`/`Alive`, `Dead`/`Living`, `Event`/`Censored`, `Progressed`/`Stable`).
-      3. **Biomarker / Gene Columns (or Clinical Group Column):** Continuous expression columns (`TPM`, `FPKM`, `Log2`, `Protein_Level`) or categorical arms (`Stage`, `Treatment_Group`).
-    * **4 Publication-Ready Figures & 4 Clinical CSV Tables Generated Automatically:**
-      * **Figure 1A (Annotated Kaplan-Meier Curve + Number-at-Risk Table):** Step-function survival curves, toggleable **95% CI shaded ribbons**, censored tick marks (`+`), 50% median drop-lines, and aligned **Number at Risk** matrix.
-      * **Figure 1B (Nelson-Aalen Cumulative Hazard Trajectory):** Plots cumulative event hazard $H(t)$ over follow-up time.
-      * **Figure 1C (Multi-Gene Prognostic Hazard Ratio Forest Plot):** Ranks all genes/biomarkers in your file by Hazard Ratio ($\text{HR}$) and 95% CI.
-      * **Figure 1D (Landmark Survival Probability Chart):** Automatically adapts landmarks to your chosen time unit (`12/24/36/60 Months`, `1/2/3/5 Years`, or `180/365/730/1095 Days`).
-      * **4 CSV Tables:** (1) Cohort Summary (`Median Survival`, `RMST`, `HR`, `Landmarks`), (2) Patient-Level Risk Group Assignments (`High` vs `Low`), (3) Multi-Gene Batch Prognostic Screen, and (4) Exact KM Step Coordinates.
-    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Vector figure (`.svg` / `.html`) outputs open natively in any web browser (**Safari / Chrome / Edge**) or vector editor (**Illustrator / PowerPoint / Keynote**).
-    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Stratification & Survival Engine** across all genes/biomarkers in your uploaded dataset. Switching between target genes, changing endpoints, toggling 95% CI ribbons, or adjusting time units within your unlocked engine is free; switching the Core Survival Engine or uploading a new file starts a new run.
+      1. **Follow-Up Time Column:** Numeric survival time (`OS_Months`, `PFS_Days`, `FollowUp_Years`)[cite: 12].
+      2. **Event Status Column:** Supports numeric (`1` = Event/Deceased/Relapsed, `0` = Censored/Alive/Event-Free) OR clinical text (`Deceased`/`Alive`, `Dead`/`Living`, `Event`/`Censored`, `Progressed`/`Stable`)[cite: 12].
+      3. **Biomarker / Gene Columns (or Clinical Group Column):** Continuous expression columns (`TPM`, `FPKM`, `Log2`, `Protein_Level`) or categorical arms (`Stage`, `Treatment_Group`)[cite: 12].
+    * **4 Publication-Ready Figures & 4 Clinical CSV Tables Generated Automatically:**[cite: 12]
+      * **Figure 1A (Annotated Kaplan-Meier Curve + Number-at-Risk Table):** Step-function survival curves, toggleable **95% CI shaded ribbons**, censored tick marks (`+`), 50% median drop-lines, and aligned **Number at Risk** matrix[cite: 12].
+      * **Figure 1B (Nelson-Aalen Cumulative Hazard Trajectory):** Plots cumulative event hazard $H(t)$ over follow-up time[cite: 12].
+      * **Figure 1C (Multi-Gene Prognostic Hazard Ratio Forest Plot):** Ranks all genes/biomarkers in your file by Hazard Ratio ($\text{HR}$) and 95% CI[cite: 12].
+      * **Figure 1D (Landmark Survival Probability Chart):** Automatically adapts landmarks to your chosen time unit (`12/24/36/60 Months`, `1/2/3/5 Years`, or `180/365/730/1095 Days`)[cite: 12].
+      * **4 CSV Tables:** (1) Cohort Summary (`Median Survival`, `RMST`, `HR`, `Landmarks`), (2) Patient-Level Risk Group Assignments (`High` vs `Low`), (3) Multi-Gene Batch Prognostic Screen, and (4) Exact KM Step Coordinates[cite: 12].
+    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**[cite: 12]. Vector figure (`.svg` / `.html`) outputs open natively in any web browser (**Safari / Chrome / Edge**) or vector editor (**Illustrator / PowerPoint / Keynote**)[cite: 12].
+    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Stratification & Survival Engine** across all genes/biomarkers in your uploaded dataset[cite: 12]. Switching between target genes, changing endpoints, toggling 95% CI ribbons, or adjusting time units within your unlocked engine is free; switching the Core Survival Engine or uploading a new file starts a new run[cite: 12].
     """)
 
 # ==========================================
@@ -938,7 +938,7 @@ if df_input is not None and not df_input.empty:
         show_censored = st.checkbox("Show Censored Patient Tick Marks (+) on Curve", value=True)
         show_med_line = st.checkbox("Show 50% Median Survival Drop-Lines", value=True)
         excel_guard = st.checkbox(
-            "🛡️️ Enable Excel Gene-Name Guard (Protects MARCH1 / SEPT2)",
+            "🛡️ Enable Excel Gene-Name Guard (Protects MARCH1 / SEPT2)",
             value=False,
             help="Wraps gene symbols as explicit Excel strings (=\"GENE\") so Microsoft Excel never converts MARCH1 or SEPT2 into calendar dates."
         )
@@ -1215,7 +1215,7 @@ if "km_curve_df_t8" in st.session_state:
             st.download_button(
                 "⬇️ 7. Fig 1C: HR Forest Plot (.svg)",
                 data=svg_forest.encode("utf-8"),
-                file_name="GenomeTech_Prognostic_HR_Forest.svg",
+                file_name=f"GenomeTech_Prognostic_HR_Forest.svg",
                 mime="image/svg+xml"
             )
         with d4:
@@ -1275,6 +1275,7 @@ if "km_curve_df_t8" in st.session_state:
                     import time
                     
                     DB_FILE = "used_keys.json"
+                    AUTHORIZED_DEMO_KEYS = ["GTS-DEMO-TIRTH", "GTS-DEMO-KASHI", "GTS-DEMO-AYODHYA"]
                     
                     def is_key_burned(key_to_check):
                         if not os.path.exists(DB_FILE):
@@ -1296,8 +1297,8 @@ if "km_curve_df_t8" in st.session_state:
                         st.session_state["is_unlocked_t8"] = True
                         st.rerun()
 
-                    # 2. DEMO KEY CHECK (One-Time Use)
-                    elif entered_key.startswith("GTS-DEMO-"):
+                    # 2. AUTHORIZED DEMO KEY CHECK (One-Time Use)
+                    elif entered_key in AUTHORIZED_DEMO_KEYS:
                         burned, burn_date = is_key_burned(entered_key)
                         if burned:
                             st.error(f"❌ Security Lock: This Demo Key was already claimed on {burn_date}.")
@@ -1306,7 +1307,7 @@ if "km_curve_df_t8" in st.session_state:
                             st.session_state["is_unlocked_t8"] = True
                             st.rerun()
 
-                    # 3. RAZORPAY API VERIFICATION (One-Time Use)
+                    # 3. RAZORPAY API VERIFICATION (Amount-Checked & One-Time Use)
                     elif entered_key.startswith("pay_") and len(entered_key) >= 14:
                         burned, burn_date = is_key_burned(entered_key)
                         if burned:
@@ -1319,9 +1320,13 @@ if "km_curve_df_t8" in st.session_state:
                                 
                                 # Verify the transaction was successful
                                 if payment["status"] in ["captured", "authorized"]:
-                                    burn_key(entered_key)
-                                    st.session_state["is_unlocked_t8"] = True
-                                    st.rerun()
+                                    # Check for $40 USD (4000 cents) OR ₹3500 INR (350000 paise)
+                                    if (payment["amount"] >= 4000 and payment["currency"] == "USD") or (payment["amount"] >= 350000 and payment["currency"] == "INR"):
+                                        burn_key(entered_key)
+                                        st.session_state["is_unlocked_t8"] = True
+                                        st.rerun()
+                                    else:
+                                        st.error(f"❌ Invalid Payment Amount. Expected $40.00 USD or ₹3500 INR, but found {payment['amount']/100:.2f} {payment['currency']}.")
                                 else:
                                     st.error(f"❌ Payment Status: {payment['status'].upper()}. This transaction is not complete.")
                                     
@@ -1329,7 +1334,7 @@ if "km_curve_df_t8" in st.session_state:
                                 st.error("❌ Invalid Payment ID. The bank API could not verify this transaction.")
                                 
                     else:
-                        st.error("❌ Invalid Key Format. Must be a valid Razorpay ID (pay_...) or authorized Demo Key.")
+                        st.error("❌ Invalid Key Format or Unauthorized Demo Key.")
         # --- END API & ANTI-REUSE GATEWAY UPGRADE ---
 
     # ==========================================

@@ -152,24 +152,24 @@ def reset_on_mode_change_t6():
 
 st.markdown("## Clinical & Genomic Dataset Merger")
 st.markdown(
-    "Upload mismatched **Clinical Patient Metadata** and **Transcriptomic / Genomic Expression Matrices** (`.csv`, `.tsv`, `.txt`). "
+    "Upload mismatched **Clinical Patient Metadata** and **Transcriptomic / Genomic Expression Matrices** (`.csv`, `.tsv`, `.txt`)[cite: 10]. "
     "Automatically harmonizes inconsistent sample barcodes (`PT-01` vs `pt_001_RNAseq`, `TCGA.A1.A0SB` vs `TCGA-A1-A0SB-01A`), "
-    "rescues specimen tissue tags (`Tumor` vs `Normal`), transposes `Genes × Samples` matrices, and outputs one unified master file."
+    "rescues specimen tissue tags (`Tumor` vs `Normal`), transposes `Genes × Samples` matrices, and outputs one unified master file[cite: 10]."
 )
 
 with st.expander("📋 Accepted File Formats & Sample Barcode Harmonization Features (.csv, .tsv, .txt)", expanded=True):
     st.markdown("""
-    * **File 1 — Clinical Metadata Spreadsheet:** Patient rows containing clinical variables (`Age`, `Sex`, `Clinical_Stage`, `Treatment_Response`, `OS_Months`, `Vital_Status`).
-    * **File 2 — Transcriptomic / Genomic Spreadsheet:** Either **Samples-as-Rows** OR standard RNA-seq **Genes-as-Rows (`Genes × Samples`)** expression/mutation matrices.
-    * **Complete Researcher & Biostatistician Features Included:**
-      1. **Smart Barcode Harmonizer & Tissue Extractor:** Reconciles delimiter mismatches (`.` / `_` / `-`), normalizes zero-padding (`PT-1` $\leftrightarrow$ `PT-001`), truncates **12-char TCGA Patient Barcodes**, and automatically extracts **`Extracted_Specimen_Type`** (`Primary Tumor (01A)`, `Matched Normal (11A)`, `Tumor`, `Normal`) before stripping suffixes.
-      2. **3 Synchronized Deliverables:**
-         * **Deliverable #1:** Unified Master Clinical + Genomic Table (`Patients × [Clinical + Genes]`) for Excel, SPSS, GraphPad Prism, and Kaplan-Meier survival analysis.
-         * **Deliverable #2:** `DESeq2 / edgeR / Limma` Expression Matrix (`Genes × Matched_Samples`) with sample columns ordered **identically** to the clinical patient rows.
-         * **Deliverable #3:** Sample Barcode Crosswalk & Unmatched Orphan Audit Log.
-      3. **Transformation & Missing Value Controls:** Supports $\log_2(x+1)$ scaling, per-gene **Z-score standardization**, replicate averaging, and missing value (`NA`) imputation.
-    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Sequence (`.fasta`) and vector figure (`.svg` / `.html`) outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**).
-    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Cohort Merge Strategy** for your uploaded files. Adjusting barcode rules, normalization, Z-scores, or NA handling within your unlocked strategy is free; switching the Core Strategy or uploading new files starts a new run.
+    * **File 1 — Clinical Metadata Spreadsheet:** Patient rows containing clinical variables (`Age`, `Sex`, `Clinical_Stage`, `Treatment_Response`, `OS_Months`, `Vital_Status`)[cite: 10].
+    * **File 2 — Transcriptomic / Genomic Spreadsheet:** Either **Samples-as-Rows** OR standard RNA-seq **Genes-as-Rows (`Genes × Samples`)** expression/mutation matrices[cite: 10].
+    * **Complete Researcher & Biostatistician Features Included:**[cite: 10]
+      1. **Smart Barcode Harmonizer & Tissue Extractor:** Reconciles delimiter mismatches (`.` / `_` / `-`), normalizes zero-padding (`PT-1` $\leftrightarrow$ `PT-001`), truncates **12-char TCGA Patient Barcodes**, and automatically extracts **`Extracted_Specimen_Type`** (`Primary Tumor (01A)`, `Matched Normal (11A)`, `Tumor`, `Normal`) before stripping suffixes[cite: 10].
+      2. **3 Synchronized Deliverables:**[cite: 10]
+         * **Deliverable #1:** Unified Master Clinical + Genomic Table (`Patients × [Clinical + Genes]`) for Excel, SPSS, GraphPad Prism, and Kaplan-Meier survival analysis[cite: 10].
+         * **Deliverable #2:** `DESeq2 / edgeR / Limma` Expression Matrix (`Genes × Matched_Samples`) with sample columns ordered **identically** to the clinical patient rows[cite: 10].
+         * **Deliverable #3:** Sample Barcode Crosswalk & Unmatched Orphan Audit Log[cite: 10].
+      3. **Transformation & Missing Value Controls:** Supports $\log_2(x+1)$ scaling, per-gene **Z-score standardization**, replicate averaging, and missing value (`NA`) imputation[cite: 10].
+    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**[cite: 10]. Sequence (`.fasta`) and vector figure (`.svg` / `.html`) outputs open natively in any text editor (**Notepad / Mac TextEdit**) or web browser (**Safari / Chrome / Edge**)[cite: 10].
+    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Cohort Merge Strategy** for your uploaded files[cite: 10]. Adjusting barcode rules, normalization, Z-scores, or NA handling within your unlocked strategy is free; switching the Core Strategy or uploading new files starts a new run[cite: 10].
     """)
 
 # ==========================================
@@ -600,6 +600,7 @@ if "merged_df_t6" in st.session_state:
                     import time
                     
                     DB_FILE = "used_keys.json"
+                    AUTHORIZED_DEMO_KEYS = ["GTS-DEMO-AYODHYA", "GTS-DEMO-CHITRAKOOT", "GTS-DEMO-NANDGAON"]
                     
                     def is_key_burned(key_to_check):
                         if not os.path.exists(DB_FILE):
@@ -621,8 +622,8 @@ if "merged_df_t6" in st.session_state:
                         st.session_state["is_unlocked_t6"] = True
                         st.rerun()
 
-                    # 2. DEMO KEY CHECK (One-Time Use)
-                    elif entered_key.startswith("GTS-DEMO-"):
+                    # 2. AUTHORIZED DEMO KEY CHECK (One-Time Use)
+                    elif entered_key in AUTHORIZED_DEMO_KEYS:
                         burned, burn_date = is_key_burned(entered_key)
                         if burned:
                             st.error(f"❌ Security Lock: This Demo Key was already claimed on {burn_date}.")
@@ -631,7 +632,7 @@ if "merged_df_t6" in st.session_state:
                             st.session_state["is_unlocked_t6"] = True
                             st.rerun()
 
-                    # 3. RAZORPAY API VERIFICATION (One-Time Use)
+                    # 3. RAZORPAY API VERIFICATION (Amount-Checked & One-Time Use)
                     elif entered_key.startswith("pay_") and len(entered_key) >= 14:
                         burned, burn_date = is_key_burned(entered_key)
                         if burned:
@@ -644,9 +645,13 @@ if "merged_df_t6" in st.session_state:
                                 
                                 # Verify the transaction was successful
                                 if payment["status"] in ["captured", "authorized"]:
-                                    burn_key(entered_key)
-                                    st.session_state["is_unlocked_t6"] = True
-                                    st.rerun()
+                                    # Check for $40 USD (4000 cents) OR ₹3500 INR (350000 paise)
+                                    if (payment["amount"] >= 4000 and payment["currency"] == "USD") or (payment["amount"] >= 350000 and payment["currency"] == "INR"):
+                                        burn_key(entered_key)
+                                        st.session_state["is_unlocked_t6"] = True
+                                        st.rerun()
+                                    else:
+                                        st.error(f"❌ Invalid Payment Amount. Expected $40.00 USD or ₹3500 INR, but found {payment['amount']/100:.2f} {payment['currency']}.")
                                 else:
                                     st.error(f"❌ Payment Status: {payment['status'].upper()}. This transaction is not complete.")
                                     
@@ -654,7 +659,7 @@ if "merged_df_t6" in st.session_state:
                                 st.error("❌ Invalid Payment ID. The bank API could not verify this transaction.")
                                 
                     else:
-                        st.error("❌ Invalid Key Format. Must be a valid Razorpay ID (pay_...) or authorized Demo Key.")
+                        st.error("❌ Invalid Key Format or Unauthorized Demo Key.")
         # --- END API & ANTI-REUSE GATEWAY UPGRADE ---
 
     # ==========================================
@@ -666,8 +671,8 @@ if "merged_df_t6" in st.session_state:
     st.info(
         f"**Automated Clinical & Genomic Merger Diagnostics:**\n"
         f"* **Cohort Merge Strategy:** {stats['engine']}\n"
-        f"* **Barcode Harmonization & Tissue Rescue:** Aligned **{stats['matched']}** patients across **{stats['clin_in']}** clinical records and **{stats['gen_in']}** genomic assays (**{stats['rescued']}** mismatched barcodes rescued; tissue origin tags preserved in `Extracted_Specimen_Type`).\n"
-        f"* **DESeq2 / R Synchronization & Orphan Audit:** Generated both a patient-row master table (`{stats['final_rows']} × {stats['final_cols']}`) and a `Genes × Matched_Samples` matrix with **0 column-order mismatches**, plus an audit log of **{stats['orphans']}** unmatched orphan ID(s)."
+        f"* **Barcode Harmonization & Tissue Rescue:** Aligned **{stats['matched']}** patients across **{stats['clin_in']}** clinical records and **{stats['gen_in']}** genomic assays (**{stats['rescued']}** mismatched barcodes rescued; tissue origin tags preserved in `Extracted_Specimen_Type`)[cite: 10].\n"
+        f"* **DESeq2 / R Synchronization & Orphan Audit:** Generated both a patient-row master table (`{stats['final_rows']} × {stats['final_cols']}`) and a `Genes × Matched_Samples` matrix with **0 column-order mismatches**, plus an audit log of **{stats['orphans']}** unmatched orphan ID(s)[cite: 10]."
     )
 
     with st.expander("💬 Send Remarks or Questions Directly to GenomeTech Team (via Email)"):

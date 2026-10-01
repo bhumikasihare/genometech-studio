@@ -164,23 +164,23 @@ def reset_on_mode_change_t7():
 
 st.markdown("## Automated ANOVA, Post-Hoc & 4-Panel Publication Figure Suite")
 st.markdown(
-    "Compute **One-Way ANOVA, Welch's ANOVA, or Non-Parametric Kruskal-Wallis tests** with **Tukey's HSD / Games-Howell / Dunn's Post-Hoc** comparisons instantly. "
+    "Compute **One-Way ANOVA, Welch's ANOVA, or Non-Parametric Kruskal-Wallis tests** with **Tukey's HSD / Games-Howell / Dunn's Post-Hoc** comparisons instantly[cite: 11]. "
     "Includes **Shapiro-Wilk Normality & Levene's Variance Audits**, **3 Excel-Ready Statistical Tables (`.csv`)**, "
-    "**4 High-Resolution Vector Figures (`.svg`)**, and a **1-Click Printable Visual Report (`.html`)**."
+    "**4 High-Resolution Vector Figures (`.svg`)**, and a **1-Click Printable Visual Report (`.html`)**[cite: 11]."
 )
 
 with st.expander("📋 Accepted File Formats, Cross-Platform Guide & Complete Deliverables (.csv, .svg, .html)", expanded=True):
     st.markdown("""
     * **Supported Data Layouts:**
-      1. **Standard Sample-Row Table (Default):** Contains an Experimental Group column and one or more numeric Gene/Biomarker/Cytokine columns.
-      2. **Wide Group-Column Table:** Each column represents a separate experimental treatment group with replicate measurements in the rows.
+      1. **Standard Sample-Row Table (Default):** Contains an Experimental Group column and one or more numeric Gene/Biomarker/Cytokine columns[cite: 11].
+      2. **Wide Group-Column Table:** Each column represents a separate experimental treatment group with replicate measurements in the rows[cite: 11].
     * **4 Publication-Ready Figures & 3 Statistical Tables Generated Automatically:**
-      * **Figure 1A (Significance Boxplot):** Median, IQR box, Mean diamond (`◆`), individual replicate jitter points, and pairwise significance star brackets.
-      * **Figure 1B (GraphPad-Style Mean ± SD Bar Chart):** Group mean bars with standard deviation whiskers, overlaid sample dots, and significance brackets.
-      * **Figure 1C (Post-Hoc 95% CI Forest Plot):** Visualizes pairwise mean differences (`Group B - Group A`) and 95% confidence intervals against the zero-effect line.
-      * **Figure 1D (Multi-Biomarker Z-Score Trajectory Plot):** Compares standardized expression trajectories across all biomarkers in your dataset.
-    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**. Vector figure (`.svg` / `.html`) outputs open natively in any web browser (**Safari / Chrome / Edge**) or vector editor (**Illustrator / PowerPoint / Keynote**).
-    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Statistical Engine** across all biomarkers in your uploaded dataset. Switching between target biomarkers, changing color palettes, or adjusting cutoffs within your unlocked engine is free; switching the Core Statistical Engine or uploading a new file starts a new run.
+      * **Figure 1A (Significance Boxplot):** Median, IQR box, Mean diamond (`◆`), individual replicate jitter points, and pairwise significance star brackets[cite: 11].
+      * **Figure 1B (GraphPad-Style Mean ± SD Bar Chart):** Group mean bars with standard deviation whiskers, overlaid sample dots, and significance brackets[cite: 11].
+      * **Figure 1C (Post-Hoc 95% CI Forest Plot):** Visualizes pairwise mean differences (`Group B - Group A`) and 95% confidence intervals against the zero-effect line[cite: 11].
+      * **Figure 1D (Multi-Biomarker Z-Score Trajectory Plot):** Compares standardized expression trajectories across all biomarkers in your dataset[cite: 11].
+    * **💻 Cross-Platform File Compatibility (Windows & Apple macOS):** All exported `.csv` tables use universal `UTF-8-BOM` encoding—double-click to open directly in **Microsoft Excel (Windows/Mac)**, **Apple Numbers**, **Google Sheets**, or load into **R / Python**[cite: 11]. Vector figure (`.svg` / `.html`) outputs open natively in any web browser (**Safari / Chrome / Edge**) or vector editor (**Illustrator / PowerPoint / Keynote**)[cite: 11].
+    * **Single-Mode License Note:** Each checkout unlocks your selected **Core Statistical Engine** across all biomarkers in your uploaded dataset[cite: 11]. Switching between target biomarkers, changing color palettes, or adjusting cutoffs within your unlocked engine is free; switching the Core Statistical Engine or uploading a new file starts a new run[cite: 11].
     """)
 
 # ==========================================
@@ -1126,7 +1126,7 @@ if "posthoc_df_t7" in st.session_state:
             st.download_button(
                 "⬇️ 8. Fig 1D: Z-Score Profile (.svg)",
                 data=svg_profile.encode("utf-8"),
-                file_name="GenomeTech_MultiGene_ZScore_Profile.svg",
+                file_name=f"GenomeTech_MultiGene_ZScore_Profile.svg",
                 mime="image/svg+xml"
             )
     else:
@@ -1174,6 +1174,7 @@ if "posthoc_df_t7" in st.session_state:
                     import time
                     
                     DB_FILE = "used_keys.json"
+                    AUTHORIZED_DEMO_KEYS = ["GTS-DEMO-KANHA", "GTS-DEMO-RADHA", "GTS-DEMO-VRINDAVAN"]
                     
                     def is_key_burned(key_to_check):
                         if not os.path.exists(DB_FILE):
@@ -1195,8 +1196,8 @@ if "posthoc_df_t7" in st.session_state:
                         st.session_state["is_unlocked_t7"] = True
                         st.rerun()
 
-                    # 2. DEMO KEY CHECK (One-Time Use)
-                    elif entered_key.startswith("GTS-DEMO-"):
+                    # 2. AUTHORIZED DEMO KEY CHECK (One-Time Use)
+                    elif entered_key in AUTHORIZED_DEMO_KEYS:
                         burned, burn_date = is_key_burned(entered_key)
                         if burned:
                             st.error(f"❌ Security Lock: This Demo Key was already claimed on {burn_date}.")
@@ -1205,7 +1206,7 @@ if "posthoc_df_t7" in st.session_state:
                             st.session_state["is_unlocked_t7"] = True
                             st.rerun()
 
-                    # 3. RAZORPAY API VERIFICATION (One-Time Use)
+                    # 3. RAZORPAY API VERIFICATION (Amount-Checked & One-Time Use)
                     elif entered_key.startswith("pay_") and len(entered_key) >= 14:
                         burned, burn_date = is_key_burned(entered_key)
                         if burned:
@@ -1218,9 +1219,13 @@ if "posthoc_df_t7" in st.session_state:
                                 
                                 # Verify the transaction was successful
                                 if payment["status"] in ["captured", "authorized"]:
-                                    burn_key(entered_key)
-                                    st.session_state["is_unlocked_t7"] = True
-                                    st.rerun()
+                                    # Check for $40 USD (4000 cents) OR ₹3500 INR (350000 paise)
+                                    if (payment["amount"] >= 4000 and payment["currency"] == "USD") or (payment["amount"] >= 350000 and payment["currency"] == "INR"):
+                                        burn_key(entered_key)
+                                        st.session_state["is_unlocked_t7"] = True
+                                        st.rerun()
+                                    else:
+                                        st.error(f"❌ Invalid Payment Amount. Expected $40.00 USD or ₹3500 INR, but found {payment['amount']/100:.2f} {payment['currency']}.")
                                 else:
                                     st.error(f"❌ Payment Status: {payment['status'].upper()}. This transaction is not complete.")
                                     
@@ -1228,7 +1233,7 @@ if "posthoc_df_t7" in st.session_state:
                                 st.error("❌ Invalid Payment ID. The bank API could not verify this transaction.")
                                 
                     else:
-                        st.error("❌ Invalid Key Format. Must be a valid Razorpay ID (pay_...) or authorized Demo Key.")
+                        st.error("❌ Invalid Key Format or Unauthorized Demo Key.")
         # --- END API & ANTI-REUSE GATEWAY UPGRADE ---
 
     # ==========================================
