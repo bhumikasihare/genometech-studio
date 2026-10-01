@@ -195,7 +195,6 @@ def calc_tm(seq, na_mm=50.0):
     return round(tm, 2)
 
 def calc_amplicon_melt_tm(amp_seq, na_mm=50.0):
-    # Wet-lab Baldino/Marmur formula for dsDNA PCR product melt curve peak in SYBR Green
     n = len(amp_seq)
     if n == 0:
         return 0.0
@@ -205,13 +204,11 @@ def calc_amplicon_melt_tm(amp_seq, na_mm=50.0):
     return round(tm_prod, 1)
 
 def calc_oligo_mw(seq):
-    # Anhydrous ssDNA molecular weight in Daltons (g/mol)
     s = seq.upper()
     mw = (s.count("A") * 313.21) + (s.count("T") * 304.20) + (s.count("G") * 329.21) + (s.count("C") * 289.18) - 61.96
     return round(max(0.0, mw), 1)
 
 def calc_3prime_dg(seq):
-    # Nearest-neighbor 3' pentamer ΔG approximation (kcal/mol at 37°C)
     nn_dg = {
         "AA": -1.00, "TT": -1.00, "AT": -0.88, "TA": -0.58,
         "CA": -1.45, "TG": -1.45, "GT": -1.44, "AC": -1.44,
@@ -681,18 +678,80 @@ if "primer_df_t2" in st.session_state:
         </div>
         """, unsafe_allow_html=True)
 
+        # --- START API & ANTI-REUSE GATEWAY UPGRADE ---
         u_col1, u_col2, u_col3 = st.columns([1, 2, 1])
         with u_col2:
             entered_key = st.text_input(
-                "🔑 Completed payment? Paste your Razorpay Payment ID (starting with pay_...) from your receipt:",
-                placeholder="pay_XXXXXXXXXXXXXX"
+                "🔑 Completed payment? Paste your Razorpay Payment ID or Founder Key:",
+                placeholder="pay_XXXXXXXXXXXXXX or GTS-DEMO-..."
             ).strip()
-            if st.button("Unlock Full Download"):
-                if (entered_key.startswith("pay_") and len(entered_key) >= 14) or entered_key == "GTS2026":
-                    st.session_state["is_unlocked_t2"] = True
-                    st.rerun()
+            
+            if st.button("Unlock Full Download", use_container_width=True):
+                if not entered_key:
+                    st.warning("Please enter a key.")
                 else:
-                    st.error("Invalid Payment ID. Please paste the 'pay_...' ID shown on your Razorpay payment confirmation screen.")
+                    import json
+                    import os
+                    import razorpay
+                    import time
+                    
+                    DB_FILE = "used_keys.json"
+                    
+                    def is_key_burned(key_to_check):
+                        if not os.path.exists(DB_FILE):
+                            with open(DB_FILE, 'w') as f:
+                                json.dump({"used_keys": {}}, f)
+                        with open(DB_FILE, 'r') as f:
+                            data = json.load(f)
+                        return key_to_check in data["used_keys"], data.get("used_keys", {}).get(key_to_check, "")
+                        
+                    def burn_key(key_to_burn):
+                        with open(DB_FILE, 'r') as f:
+                            data = json.load(f)
+                        data["used_keys"][key_to_burn] = time.strftime("%Y-%m-%d %H:%M:%S")
+                        with open(DB_FILE, 'w') as f:
+                            json.dump(data, f)
+
+                    # 1. INFINITE MASTER KEY CHECK
+                    if entered_key == "GTS-MASTER-UNLIMITED":
+                        st.session_state["is_unlocked_t2"] = True
+                        st.rerun()
+
+                    # 2. DEMO KEY CHECK (One-Time Use)
+                    elif entered_key.startswith("GTS-DEMO-"):
+                        burned, burn_date = is_key_burned(entered_key)
+                        if burned:
+                            st.error(f"❌ Security Lock: This Demo Key was already claimed on {burn_date}.")
+                        else:
+                            burn_key(entered_key)
+                            st.session_state["is_unlocked_t2"] = True
+                            st.rerun()
+
+                    # 3. RAZORPAY API VERIFICATION (One-Time Use)
+                    elif entered_key.startswith("pay_") and len(entered_key) >= 14:
+                        burned, burn_date = is_key_burned(entered_key)
+                        if burned:
+                            st.error(f"❌ Security Lock: This Receipt ID was already claimed on {burn_date}. Keys cannot be shared.")
+                        else:
+                            try:
+                                # Authenticate with Razorpay Servers
+                                client = razorpay.Client(auth=(st.secrets["razorpay"]["key_id"], st.secrets["razorpay"]["key_secret"]))
+                                payment = client.payment.fetch(entered_key)
+                                
+                                # Verify the transaction was successful
+                                if payment["status"] in ["captured", "authorized"]:
+                                    burn_key(entered_key)
+                                    st.session_state["is_unlocked_t2"] = True
+                                    st.rerun()
+                                else:
+                                    st.error(f"❌ Payment Status: {payment['status'].upper()}. This transaction is not complete.")
+                                    
+                            except Exception as e:
+                                st.error("❌ Invalid Payment ID. The bank API could not verify this transaction.")
+                                
+                    else:
+                        st.error("❌ Invalid Key Format. Must be a valid Razorpay ID (pay_...) or authorized Demo Key.")
+        # --- END API & ANTI-REUSE GATEWAY UPGRADE ---
 
     st.markdown("---")
     st.markdown("### 📝 Automated Thermodynamic Remarks & Direct Support")

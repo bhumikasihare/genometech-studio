@@ -144,9 +144,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-query_params = st.query_params
-if "unlocked" in query_params and query_params["unlocked"] == "GTS2026":
-    st.session_state["is_unlocked_t8"] = True
 if "is_unlocked_t8" not in st.session_state:
     st.session_state["is_unlocked_t8"] = False
 if "locked_mode_t8" not in st.session_state:
@@ -941,7 +938,7 @@ if df_input is not None and not df_input.empty:
         show_censored = st.checkbox("Show Censored Patient Tick Marks (+) on Curve", value=True)
         show_med_line = st.checkbox("Show 50% Median Survival Drop-Lines", value=True)
         excel_guard = st.checkbox(
-            "🛡️ Enable Excel Gene-Name Guard (Protects MARCH1 / SEPT2)",
+            "🛡️️ Enable Excel Gene-Name Guard (Protects MARCH1 / SEPT2)",
             value=False,
             help="Wraps gene symbols as explicit Excel strings (=\"GENE\") so Microsoft Excel never converts MARCH1 or SEPT2 into calendar dates."
         )
@@ -1229,7 +1226,7 @@ if "km_curve_df_t8" in st.session_state:
                 mime="text/csv"
             )
             st.download_button(
-                "⬇️ 8. All-in-One Visual Report (.html)",
+                "⬇️️ 8. All-in-One Visual Report (.html)",
                 data=html_rep.encode("utf-8"),
                 file_name=f"GenomeTech_Survival_Visual_Report_{stats['feature']}.html",
                 mime="text/html"
@@ -1260,18 +1257,80 @@ if "km_curve_df_t8" in st.session_state:
         </div>
         """, unsafe_allow_html=True)
 
+        # --- START API & ANTI-REUSE GATEWAY UPGRADE ---
         u_col1, u_col2, u_col3 = st.columns([1, 2, 1])
         with u_col2:
             entered_key = st.text_input(
-                "🔑 Completed payment? Paste your Razorpay Payment ID (starting with pay_...) from your receipt:",
-                placeholder="pay_XXXXXXXXXXXXXX"
+                "🔑 Completed payment? Paste your Razorpay Payment ID or Founder Key:",
+                placeholder="pay_XXXXXXXXXXXXXX or GTS-DEMO-..."
             ).strip()
-            if st.button("Unlock Full Download"):
-                if (entered_key.startswith("pay_") and len(entered_key) >= 14) or entered_key == "GTS2026":
-                    st.session_state["is_unlocked_t8"] = True
-                    st.rerun()
+            
+            if st.button("Unlock Full Download", use_container_width=True):
+                if not entered_key:
+                    st.warning("Please enter a key.")
                 else:
-                    st.error("Invalid Payment ID. Please paste the 'pay_...' ID shown on your Razorpay payment confirmation screen.")
+                    import json
+                    import os
+                    import razorpay
+                    import time
+                    
+                    DB_FILE = "used_keys.json"
+                    
+                    def is_key_burned(key_to_check):
+                        if not os.path.exists(DB_FILE):
+                            with open(DB_FILE, 'w') as f:
+                                json.dump({"used_keys": {}}, f)
+                        with open(DB_FILE, 'r') as f:
+                            data = json.load(f)
+                        return key_to_check in data["used_keys"], data.get("used_keys", {}).get(key_to_check, "")
+                        
+                    def burn_key(key_to_burn):
+                        with open(DB_FILE, 'r') as f:
+                            data = json.load(f)
+                        data["used_keys"][key_to_burn] = time.strftime("%Y-%m-%d %H:%M:%S")
+                        with open(DB_FILE, 'w') as f:
+                            json.dump(data, f)
+
+                    # 1. INFINITE MASTER KEY CHECK
+                    if entered_key == "GTS-MASTER-UNLIMITED":
+                        st.session_state["is_unlocked_t8"] = True
+                        st.rerun()
+
+                    # 2. DEMO KEY CHECK (One-Time Use)
+                    elif entered_key.startswith("GTS-DEMO-"):
+                        burned, burn_date = is_key_burned(entered_key)
+                        if burned:
+                            st.error(f"❌ Security Lock: This Demo Key was already claimed on {burn_date}.")
+                        else:
+                            burn_key(entered_key)
+                            st.session_state["is_unlocked_t8"] = True
+                            st.rerun()
+
+                    # 3. RAZORPAY API VERIFICATION (One-Time Use)
+                    elif entered_key.startswith("pay_") and len(entered_key) >= 14:
+                        burned, burn_date = is_key_burned(entered_key)
+                        if burned:
+                            st.error(f"❌ Security Lock: This Receipt ID was already claimed on {burn_date}. Keys cannot be shared.")
+                        else:
+                            try:
+                                # Authenticate with Razorpay Servers
+                                client = razorpay.Client(auth=(st.secrets["razorpay"]["key_id"], st.secrets["razorpay"]["key_secret"]))
+                                payment = client.payment.fetch(entered_key)
+                                
+                                # Verify the transaction was successful
+                                if payment["status"] in ["captured", "authorized"]:
+                                    burn_key(entered_key)
+                                    st.session_state["is_unlocked_t8"] = True
+                                    st.rerun()
+                                else:
+                                    st.error(f"❌ Payment Status: {payment['status'].upper()}. This transaction is not complete.")
+                                    
+                            except Exception as e:
+                                st.error("❌ Invalid Payment ID. The bank API could not verify this transaction.")
+                                
+                    else:
+                        st.error("❌ Invalid Key Format. Must be a valid Razorpay ID (pay_...) or authorized Demo Key.")
+        # --- END API & ANTI-REUSE GATEWAY UPGRADE ---
 
     # ==========================================
     # STEP 6: AUTOMATED REMARKS & DIRECT EMAIL
