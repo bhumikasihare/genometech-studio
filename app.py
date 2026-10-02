@@ -144,7 +144,7 @@ st.markdown("""
 
 <div class="gts-navbar">
     <div>
-        <a href="https://genometechstudio.github.io" class="gts-brand">🧬 GenomeTech Studio</a>
+        <a href="https://genometechstudio.github.io" class="gts-brand" style="text-decoration: none;">🧬 GenomeTech Studio</a>
         <span class="gts-sub">| OmicsExpress Automated Bioinformatics Suite</span>
     </div>
     <span class="gts-badge">🔥 Founding Lab Offer: <s>$100</s> $40 USD (First 20 Clients)</span>
